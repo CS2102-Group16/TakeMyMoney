@@ -21,6 +21,7 @@ Shut up and take my money!
 ### "Relation does not exist"
 
 This means that your database tables do not exist yet. To fix this, follow the steps:
+
 1. Run the `use_djangostack` terminal.
 2. Run `psql -U postgres djangostack`, and type in your password.
 3. Copy the relevant content from `schema.sql` (in this repository) and paste in the terminal, press Enter.
