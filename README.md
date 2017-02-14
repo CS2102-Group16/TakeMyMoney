@@ -1,5 +1,5 @@
 # TakeMyMoney
-Shut up and take my money!
+![Shut up and take my money!](http://vignette2.wikia.nocookie.net/walkingdead/images/3/3f/Shut-up-and-take-my-money.jpg/revision/latest/scale-to-width-down/1280?cb=20140829235648)
 
 ## Running instructions
 1. Run `manager-osx` (for Mac) or `manager-windows` (for Windows)
