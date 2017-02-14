@@ -5,7 +5,7 @@ from django.shortcuts import render, redirect
 def project_list(request):
     context = dict()
     with connection.cursor() as cursor:
-        cursor.execute("SELECT title, description, target_fund, start_date, end_date FROM project")
+        cursor.execute("SELECT title, description, target_fund, start_date, end_date FROM projects")
         row = cursor.fetchall()
         context['projects'] = row
 
@@ -18,7 +18,7 @@ def store_project(request):
     with connection.cursor() as cursor:
         #try:
             cursor.execute(
-                "INSERT INTO project(title, description, target_fund, start_date, end_date) VALUES ('%s', '%s', '%s', '%s', '%s')"
+                "INSERT INTO projects(title, description, target_fund, start_date, end_date) VALUES ('%s', '%s', '%s', '%s', '%s')"
                 % (request.POST['title'],
                    request.POST['description'],
                    request.POST['target_fund'],
