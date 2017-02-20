@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<!-- Sign up page -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign up</title>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+    <!-- Password Validation script -->
+    <!-- script now working
+    <script type="text/javascript" src="/password_validation.js"></script> -->
+
+</head>
+<body>
+<div class="container">
+    <h1>Sign up</h1>
+    <form action="/storeUser/" method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="user_email">Email address</label>
+            <input type="text" class="form-control" name="user_email" id="user_email" placeholder="user@example.com">
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="text" class="form-control" name="password" id="password" placeholder="eg123">
+        </div>
+        <div class="form-group">
+            <label for="confirm_password">Confirm Password</label>
+            <input type="text" class="form-control" name="confirm_password" id="confirm_password" placeholder="eg123">
+            <!-- code for password validation not working
+
+            <input type="text" class="form-control" name="confirm_password" id="confirm_password" placeholder="eg123" onkeyup="checkPass(); return false;">
+            <span id="confirmMessage" class="confirmMessage"></span>
+
+            -->
+        </div>
+        <button type="submit" class="btn btn-primary pull-right">Confirm</button>
+    </form>
+</div>
+</body>
+</html>
