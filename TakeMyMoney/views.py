@@ -19,7 +19,8 @@ def store_project(request):
         #try:
             cursor.execute(
                 "INSERT INTO projects(title, description, target_fund, start_date, end_date) VALUES ('%s', '%s', '%s', '%s', '%s')"
-                % (request.POST['title'],
+                % (
+                   request.POST['title'],
                    request.POST['description'],
                    request.POST['target_fund'],
                    request.POST['start_date'],
@@ -88,3 +89,35 @@ def user_list(request):
         context['users'] = row
 
     return render(request, 'user_list.html', context=context)
+
+def edit_project(request):
+    return render(request, 'edit_project.html', context=None)
+
+def update_project(request):
+    pid = request.POST['pid']
+    with connection.cursor() as cursor:
+        #try:
+            cursor.execute(
+                "UPDATE projects SET title = '%s', description = '%s', target_fund = %s, start_date = '%s', end_date = '%s' WHERE pid = %s"
+                % (request.POST['title'],
+                   request.POST['description'],
+                   request.POST['target_fund'],
+                   request.POST['start_date'],
+                   request.POST['end_date'],
+                   pid)
+            )
+            connection.commit()
+
+    return redirect('/')
+
+def delete_project(request):
+    pid = request.POST['pid']
+    with connection.cursor() as cursor:
+        #try:
+            cursor.execute(
+                "DELETE FROM projects WHERE pid = %s"
+                % (pid)
+            )
+            connection.commit()
+
+    return redirect('/')

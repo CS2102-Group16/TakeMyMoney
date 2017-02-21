@@ -1,4 +1,5 @@
 CREATE TABLE projects(
+    pid SERIAL PRIMARY KEY,
 	title VARCHAR(100),
 	description VARCHAR(1000),
 	start_date DATE,
