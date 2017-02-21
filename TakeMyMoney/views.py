@@ -53,8 +53,8 @@ def project_details(request):
     with connection.cursor() as cursor:
         cursor.execute("SELECT title, description, target_fund, start_date, end_date, pid FROM projects WHERE pid = %s"
                        % pid)
-        row = cursor.fetchall()
-        context['projects'] = row
+        rows = cursor.fetchall()
+        context['project'] = rows[0]
 
     return render(request, 'project_details.html', context=context)
 

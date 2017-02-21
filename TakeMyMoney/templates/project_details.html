@@ -1,17 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Project Details</title>
-    <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+{% extends "base.html" %}
 
-    <!-- Optional theme -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+{% block title %}Project details{% endblock %}
 
-    <!-- Latest compiled and minified JavaScript -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+{% block style %}
     <style>
         .project-footer {
             width: 100%;
@@ -33,10 +24,10 @@
             background-color: #2BDE73;
         }
     </style>
-</head>
-<body>
-    <div class="container">
+{% endblock %}
 
+{% block content %}
+    <div class="container">
         <div class="container">
             <h1 class="text-center">{{ project.0 }}</h1>
             <p class="text-center">{{ project.1 }}</p>
@@ -51,13 +42,11 @@
                 </div>
                 <span class="pull-right"><b>Ends on: {{ project.4 }}</b></span>
             </div>
+            <div>
+                <button type="button" class="btn btn-success pull-left">Pledge</button>
+                <a href="/editProject/?pid={{ project.5 }}" class="btn btn-warning pull-right" role="button">Edit</a>
+                <a href="/deleteProject/?pid={{ project.5 }}" class="btn btn-danger pull-right" role="button">Delete</a>
+            </div>
         </div>
-
-        <button type="button" class="btn btn-success pull-left">Pledge</button>
-        {% for project in projects %}
-        <a href="/editProject/?pid={{ project.5 }}" class="btn btn-warning pull-right" role="button">Edit</a>
-        <a href="/deleteProject/?pid={{ project.5 }}" class="btn btn-danger pull-right" role="button">Delete</a>
-        {% endfor %}
     </div>
-</body>
-</html>
+{% endblock %}
