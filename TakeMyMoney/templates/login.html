@@ -19,7 +19,7 @@
 <body>
 <div class="container">
     <h1>Login</h1>
-    <form action="/checkUser/" method="POST">
+    <form action="/attemptLogin/" method="POST">
         {% csrf_token %}
         <div class="form-group">
             <label for="user_email">Email</label>
@@ -29,8 +29,7 @@
             <label for="password">Password</label>
             <input type="text" class="form-control" name="password" id="password" placeholder="eg123">
         </div>
-        <input type="checkbox" checked="checked"> Remember me
-        <button type="submit" class="btn btn-primary pull-right">login</button>
+        <button type="submit" class="btn btn-primary pull-right">Login</button>
     </form>
 </div>
 </body>

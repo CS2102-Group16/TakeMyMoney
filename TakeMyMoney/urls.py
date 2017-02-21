@@ -33,5 +33,8 @@ urlpatterns = [
 
     url(r'^signUp/', views.add_new_user),
     url(r'^storeUser/', views.store_user),
-    url(r'^userList/', views.user_list)
+    url(r'^userList/', views.user_list),
+    url(r'^attemptLogin/', views.attempt_login),
+    url(r'^loginStatus/', views.login_status),
+    url(r'^signOut/', views.logout),
 ]
