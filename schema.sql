@@ -16,3 +16,8 @@ CREATE TABLE users(
     password VARCHAR(15) NOT NULL,
     role VARCHAR(10) NOT NULL
 );
+
+CREATE TABLE sessions(
+    session_id CHAR(36) PRIMARY KEY,
+	user_id INTEGER REFERENCES users(user_id)
+);
