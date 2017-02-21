@@ -50,7 +50,7 @@ def login(request):
 
 # placeholder method
 def check_user(request):
-    return redirect('/')
+    return redirect('project_list.html')
 
 '''
 def check_user(request):
@@ -83,7 +83,7 @@ def store_user(request):
 def user_list(request):
     context = dict()
     with connection.cursor() as cursor:
-        cursor.execute("SELECT user_email, password, role FROM users")
+        cursor.execute("SELECT user_email, user_id, password, role FROM users")
         row = cursor.fetchall()
         context['users'] = row
 
