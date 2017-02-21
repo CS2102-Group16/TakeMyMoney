@@ -9,9 +9,19 @@ def project_list(request):
     inject_user_data(request, context)
 
     with connection.cursor() as cursor:
+        cursor.execute("SELECT name FROM categories")
+        rows = cursor.fetchall()
+        context['categories'] = rows
+
+    with connection.cursor() as cursor:
         cursor.execute("SELECT title, description, target_fund, start_date, end_date, pid FROM projects")
-        row = cursor.fetchall()
-        context['projects'] = row
+        rows = cursor.fetchall()
+        context['projects'] = rows
+
+    # if 'category' in request.GET:
+    #     category_name = request.GET['category']
+    # query_str = "SELECT p.title, p.description, p.target_fund, p.start_date, p.end_date, p.category FROM projects p " \
+    #             "INNER JOIN categories c ON p.category = c.name WHERE c.name ='%s'"
 
     return render(request, 'project_list.html', context=context)
 

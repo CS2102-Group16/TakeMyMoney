@@ -7,6 +7,16 @@ CREATE TABLE projects(
 	target_fund INTEGER
 );
 
+CREATE TABLE categories(
+    name VARCHAR(100) NOT NULL PRIMARY KEY
+);
+
+CREATE TABLE projects_categories(
+    category_name VARCHAR(100) NOT NULL,
+    pid INTEGER NOT NULL,
+    FOREIGN KEY (pid) REFERENCES projects(pid),
+    FOREIGN KEY (category_name) REFERENCES categories(name)
+);
 
 /*  user role is the default
     admin role (EVENTUALLY) allows creation, deletion and modification of all entries
