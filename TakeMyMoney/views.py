@@ -4,10 +4,24 @@ from django.shortcuts import render, redirect
 
 def project_list(request):
     context = dict()
+    category_name = 'All'
+
+    if 'category' in request.GET:
+        category_name = request.GET['category']
+
+    if category_name == 'All':
+        query_str = "SELECT title, description, target_fund, start_date, end_date, category FROM projects"
+    else:
+        query_str = "SELECT p.title, p.description, p.target_fund, p.start_date, p.end_date, p.category FROM projects p "\
+                    "INNER JOIN categories c ON p.category = c.name WHERE c.name ='"+category_name+"'"
+
     with connection.cursor() as cursor:
-        cursor.execute("SELECT title, description, target_fund, start_date, end_date FROM projects")
+        cursor.execute(query_str)
         row = cursor.fetchall()
         context['projects'] = row
+        cursor.execute("SELECT name FROM categories")
+        row = cursor.fetchall()
+        context['categories'] = row
 
     return render(request, 'project_list.html', context=context)
 
