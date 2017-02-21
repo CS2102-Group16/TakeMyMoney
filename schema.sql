@@ -11,7 +11,8 @@ CREATE TABLE projects(
     admin role (EVENTUALLY) allows creation, deletion and modification of all entries
 */
 CREATE TABLE users(
-    user_email VARCHAR(100) PRIMARY KEY,
+    user_id SERIAL PRIMARY KEY,
+    user_email VARCHAR(100) UNIQUE,
     password VARCHAR(15) NOT NULL,
     role VARCHAR(10) NOT NULL
 );
