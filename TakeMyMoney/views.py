@@ -162,15 +162,6 @@ def logout(request):
     return response
 
 
-def login_status(request):
-    context = dict()
-
-    context['user_email'] = request.COOKIES['session_id']
-    context['session_id'] = request.COOKIES['session_id']
-
-    return render(request, "login_status.html", context=context)
-
-
 def inject_user_data(request, context):
     if 'session_id' not in request.COOKIES:
         return
