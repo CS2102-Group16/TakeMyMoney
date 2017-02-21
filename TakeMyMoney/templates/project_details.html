@@ -37,7 +37,10 @@
             </tbody>
         </table>
         <button type="button" class="btn btn-success pull-left">Pledge</button>
-        <button type="button" class="btn btn-warning pull-right">Edit</button>
+        {% for project in projects %}
+        <a href="/editProject/?pid={{ project.5 }}" class="btn btn-warning pull-right" role="button">Edit</a>
+        <a href="/deleteProject/?pid={{ project.5 }}" class="btn btn-danger pull-right" role="button">Delete</a>
+        {% endfor %}
     </div>
 </body>
 </html>

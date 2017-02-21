@@ -9,7 +9,7 @@ def project_list(request):
     inject_user_data(request, context)
 
     with connection.cursor() as cursor:
-        cursor.execute("SELECT title, description, target_fund, start_date, end_date FROM projects")
+        cursor.execute("SELECT title, description, target_fund, start_date, end_date, pid FROM projects")
         row = cursor.fetchall()
         context['projects'] = row
 
@@ -48,9 +48,11 @@ def search_project(request):
 
 def project_details(request):
     context = dict()
+    pid = request.GET['pid']
+
     with connection.cursor() as cursor:
-        cursor.execute("SELECT title, description, target_fund, start_date, end_date FROM projects WHERE title = '%s'"
-                       % (request.POST['search_title']))
+        cursor.execute("SELECT title, description, target_fund, start_date, end_date, pid FROM projects WHERE pid = %s"
+                       % pid)
         row = cursor.fetchall()
         context['projects'] = row
 
@@ -184,29 +186,40 @@ def inject_user_data(request, context):
 
 
 def edit_project(request):
-    return render(request, 'edit_project.html', context=None)
+    context = dict()
+    context['pid'] = request.GET['pid']
+
+    with connection.cursor() as cursor:
+        cursor.execute(
+            "SELECT title, description, target_fund, start_date, end_date FROM projects WHERE pid = %s"
+            % context['pid']
+        )
+        rows = cursor.fetchall()
+
+    context['title'], context['description'], context['target_fund'], context['start_date'], context['end_date'] = rows[0]
+
+    return render(request, 'edit_project.html', context=context)
 
 
 def update_project(request):
-    pid = request.POST['pid']
+    pid = request.GET['pid']
     with connection.cursor() as cursor:
-        #try:
-            cursor.execute(
-                "UPDATE projects SET title = '%s', description = '%s', target_fund = %s, start_date = '%s', end_date = '%s' WHERE pid = %s"
-                % (request.POST['title'],
-                   request.POST['description'],
-                   request.POST['target_fund'],
-                   request.POST['start_date'],
-                   request.POST['end_date'],
-                   pid)
-            )
-            connection.commit()
+        cursor.execute(
+            "UPDATE projects SET title = '%s', description = '%s', target_fund = %s, start_date = '%s', end_date = '%s' WHERE pid = %s"
+            % (request.POST['title'],
+               request.POST['description'],
+               request.POST['target_fund'],
+               request.POST['start_date'],
+               request.POST['end_date'],
+               pid)
+        )
+        connection.commit()
 
     return redirect('/')
 
 
 def delete_project(request):
-    pid = request.POST['pid']
+    pid = request.GET['pid']
     with connection.cursor() as cursor:
         #try:
             cursor.execute(
