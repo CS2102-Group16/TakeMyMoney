@@ -12,30 +12,47 @@
 
     <!-- Latest compiled and minified JavaScript -->
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+    <style>
+        .project-footer {
+            width: 100%;
+            overflow: auto;
+        }
+        .funded-bar-wrapper {
+            overflow: hidden;
+            height: 12px;
+            border-radius: 6px;
+        }
+        .funded-bar {
+            height: 100%;
+            border-radius: 6px;
+        }
+        .bg-grey {
+            background-color: #F1EEEA;
+        }
+        .bg-green {
+            background-color: #2BDE73;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
-        <h1>Project Detail</h1>
-        <table class="table">
-            <thead>
-                <th>Title</th>
-                <th>Description</th>
-                <th>Target Fund</th>
-                <th>Start Date</th>
-                <th>End Date</th>
-            </thead>
-            <tbody>
-            {% for project in projects %}
-            <tr>
-                <td>{{ project.0 }}</td>
-                <td>{{ project.1 }}</td>
-                <td>{{ project.2 }}</td>
-                <td>{{ project.3 }}</td>
-                <td>{{ project.4 }}</td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+
+        <div class="container">
+            <h1 class="text-center">{{ project.0 }}</h1>
+            <p class="text-center">{{ project.1 }}</p>
+            <img class="center-block" src="http://vignette2.wikia.nocookie.net/walkingdead/images/3/3f/Shut-up-and-take-my-money.jpg/revision/latest/scale-to-width-down/1280?cb=20140829235648"
+                 alt="Shut up and take my money" width="800px">
+            <div class="project-footer">
+                <div class="pull-left">
+                    <span><b>Target fund: {{ project.3 }}</b></span>
+                    <div class="funded-bar-wrapper bg-grey">
+                        <div class="funded-bar bg-green" style="width: 60%"></div>
+                    </div>
+                </div>
+                <span class="pull-right"><b>Ends on: {{ project.4 }}</b></span>
+            </div>
+        </div>
+
         <button type="button" class="btn btn-success pull-left">Pledge</button>
         <button type="button" class="btn btn-warning pull-right">Edit</button>
     </div>
