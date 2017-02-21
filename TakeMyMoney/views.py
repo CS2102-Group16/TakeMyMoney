@@ -189,3 +189,14 @@ def inject_user_data(request, context):
 
     user_email = rows[0][0]
     context['user_email'] = user_email
+
+def funding_list(request):
+    context = dict()
+    inject_user_data(request, context)
+
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT user_id, project_id, amount FROM funding")
+        row = cursor.fetchall()
+        context['funding'] = row
+
+    return render(request, 'funding_list.html', context=context)

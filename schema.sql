@@ -1,4 +1,5 @@
 CREATE TABLE projects(
+    pid SERIAL PRIMARY KEY,
 	title VARCHAR(100),
 	description VARCHAR(1000),
 	start_date DATE,
@@ -20,4 +21,11 @@ CREATE TABLE users(
 CREATE TABLE sessions(
     session_id CHAR(36) PRIMARY KEY,
 	user_id INTEGER REFERENCES users(user_id)
+);
+
+CREATE TABLE funding(
+    user_id INTEGER REFERENCES users(user_id),
+    project_id INTEGER REFERENCES projects(pid),
+    amount INTEGER,
+    PRIMARY KEY (user_id, project_id)
 );

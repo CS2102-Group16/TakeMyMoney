@@ -37,4 +37,6 @@ urlpatterns = [
     url(r'^attemptLogin/', views.attempt_login),
     url(r'^loginStatus/', views.login_status),
     url(r'^signOut/', views.logout),
+
+    url(r'^fundingList/', views.funding_list),
 ]
