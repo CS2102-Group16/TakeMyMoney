@@ -2,6 +2,10 @@ from django.http import HttpResponse
 from django.db import connection
 from django.shortcuts import render, redirect
 
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+
 def project_list(request):
     context = dict()
     with connection.cursor() as cursor:
@@ -15,13 +19,17 @@ def add_new_project(request):
     return render(request, 'add_new_project.html', context=None)
 
 def store_project(request):
+    upload_result = cloudinary.uploader.upload(request.FILES['photo'])
+
     with connection.cursor() as cursor:
         #try:
             cursor.execute(
-                "INSERT INTO projects(title, description, target_fund, start_date, end_date) VALUES ('%s', '%s', '%s', '%s', '%s')"
+                "INSERT INTO projects(title, description, target_fund, photo_url, start_date, end_date) "
+                "VALUES ('%s', '%s', '%s', '%s', '%s', '%s')"
                 % (request.POST['title'],
                    request.POST['description'],
                    request.POST['target_fund'],
+                   upload_result['url'],
                    request.POST['start_date'],
                    request.POST['end_date'])
             )
