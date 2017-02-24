@@ -68,7 +68,8 @@ def project_details(request):
     pid = request.GET['pid']
 
     with connection.cursor() as cursor:
-        cursor.execute("SELECT title, description, target_fund, start_date, end_date, pid FROM projects WHERE pid = %s"
+        cursor.execute("SELECT title, description, target_fund, photo_url, start_date, end_date, pid "
+                       "FROM projects WHERE pid = %s"
                        % pid)
         rows = cursor.fetchall()
         context['project'] = rows[0]

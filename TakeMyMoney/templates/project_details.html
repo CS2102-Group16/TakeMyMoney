@@ -31,16 +31,16 @@
         <div class="container">
             <h1 class="text-center">{{ project.0 }}</h1>
             <p class="text-center">{{ project.1 }}</p>
-            <img class="center-block" src="http://vignette2.wikia.nocookie.net/walkingdead/images/3/3f/Shut-up-and-take-my-money.jpg/revision/latest/scale-to-width-down/1280?cb=20140829235648"
+            <img class="center-block" src="{{ project.3 }}"
                  alt="Shut up and take my money" width="800px">
             <div class="project-footer">
                 <div class="pull-left">
-                    <span><b>Target fund: {{ project.3 }}</b></span>
+                    <span><b>Target fund: {{ project.2 }}</b></span>
                     <div class="funded-bar-wrapper bg-grey">
                         <div class="funded-bar bg-green" style="width: 60%"></div>
                     </div>
                 </div>
-                <span class="pull-right"><b>Ends on: {{ project.4 }}</b></span>
+                <span class="pull-right"><b>Ends on: {{ project.5 }}</b></span>
             </div>
             <div>
                 <button type="button" class="btn btn-success pull-left">Pledge</button>
