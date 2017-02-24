@@ -5,6 +5,7 @@ CREATE TABLE projects(
 	start_date DATE,
 	end_date DATE,
 	target_fund INTEGER
+	photo_url VARCHAR(1000)
 );
 
 CREATE TABLE categories(

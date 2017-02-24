@@ -4,6 +4,10 @@ from django.shortcuts import render, redirect
 import uuid
 
 
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+
 def project_list(request):
     context = dict()
     inject_user_data(request, context)
@@ -34,14 +38,17 @@ def add_new_project(request):
 
 
 def store_project(request):
+    upload_result = cloudinary.uploader.upload(request.FILES['photo'])
+
     with connection.cursor() as cursor:
         #try:
             cursor.execute(
-                "INSERT INTO projects(title, description, target_fund, start_date, end_date) VALUES ('%s', '%s', '%s', '%s', '%s')"
-                % (
-                   request.POST['title'],
+                "INSERT INTO projects(title, description, target_fund, photo_url, start_date, end_date) "
+                "VALUES ('%s', '%s', '%s', '%s', '%s', '%s')"
+                % (request.POST['title'],
                    request.POST['description'],
                    request.POST['target_fund'],
+                   upload_result['url'],
                    request.POST['start_date'],
                    request.POST['end_date'])
             )
