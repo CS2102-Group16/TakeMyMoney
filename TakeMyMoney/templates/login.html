@@ -1,25 +1,11 @@
-<!DOCTYPE html>
-<!-- login page -->
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Login</title>
-    <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+{% extends "base.html" %}
 
-    <!-- Optional theme -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+{% block title %}Login{% endblock %}
 
-    <!-- Latest compiled and minified JavaScript -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-
-
-</head>
-<body>
+{% block content %}
 <div class="container">
     <h1>Login</h1>
-    <form action="/checkUser/" method="POST">
+    <form action="/attemptLogin/" method="POST">
         {% csrf_token %}
         <div class="form-group">
             <label for="user_email">Email</label>
@@ -29,9 +15,7 @@
             <label for="password">Password</label>
             <input type="text" class="form-control" name="password" id="password" placeholder="eg123">
         </div>
-        <input type="checkbox" checked="checked"> Remember me
-        <button type="submit" class="btn btn-primary pull-right">login</button>
+        <button type="submit" class="btn btn-primary pull-right">Login</button>
     </form>
 </div>
-</body>
-</html>
+{% endblock %}

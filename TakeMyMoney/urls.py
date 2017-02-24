@@ -28,10 +28,16 @@ urlpatterns = [
     url(r'^searchProject/', views.search_project),
     url(r'^projectDetails/', views.project_details),
 
+    url(r'^editProject/', views.edit_project),
+    url(r'^updateProject/', views.update_project),
+    url(r'^deleteProject/', views.delete_project),
+
     url(r'^login/', views.login),
     url(r'^checkUser/', views.check_user),
 
     url(r'^signUp/', views.add_new_user),
     url(r'^storeUser/', views.store_user),
-    url(r'^userList/', views.user_list)
+    url(r'^userList/', views.user_list),
+    url(r'^attemptLogin/', views.attempt_login),
+    url(r'^signOut/', views.logout),
 ]
