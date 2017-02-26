@@ -4,14 +4,28 @@ from django.shortcuts import render, redirect
 import uuid
 
 
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+
 def project_list(request):
     context = dict()
     inject_user_data(request, context)
 
     with connection.cursor() as cursor:
-        cursor.execute("SELECT title, description, target_fund, start_date, end_date FROM projects")
-        row = cursor.fetchall()
-        context['projects'] = row
+        cursor.execute("SELECT name FROM categories")
+        rows = cursor.fetchall()
+        context['categories'] = rows
+
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT title, description, target_fund, start_date, end_date, pid FROM projects")
+        rows = cursor.fetchall()
+        context['projects'] = rows
+
+    # if 'category' in request.GET:
+    #     category_name = request.GET['category']
+    # query_str = "SELECT p.title, p.description, p.target_fund, p.start_date, p.end_date, p.category FROM projects p " \
+    #             "INNER JOIN categories c ON p.category = c.name WHERE c.name ='%s'"
 
     return render(request, 'project_list.html', context=context)
 
@@ -24,13 +38,17 @@ def add_new_project(request):
 
 
 def store_project(request):
+    upload_result = cloudinary.uploader.upload(request.FILES['photo'])
+
     with connection.cursor() as cursor:
         #try:
             cursor.execute(
-                "INSERT INTO projects(title, description, target_fund, start_date, end_date) VALUES ('%s', '%s', '%s', '%s', '%s')"
+                "INSERT INTO projects(title, description, target_fund, photo_url, start_date, end_date) "
+                "VALUES ('%s', '%s', '%s', '%s', '%s', '%s')"
                 % (request.POST['title'],
                    request.POST['description'],
                    request.POST['target_fund'],
+                   upload_result['url'],
                    request.POST['start_date'],
                    request.POST['end_date'])
             )
@@ -47,11 +65,14 @@ def search_project(request):
 
 def project_details(request):
     context = dict()
+    pid = request.GET['pid']
+
     with connection.cursor() as cursor:
-        cursor.execute("SELECT title, description, target_fund, start_date, end_date FROM projects WHERE title = '%s'"
-                       % (request.POST['search_title']))
-        row = cursor.fetchall()
-        context['projects'] = row
+        cursor.execute("SELECT title, description, target_fund, photo_url, start_date, end_date, pid "
+                       "FROM projects WHERE pid = %s"
+                       % pid)
+        rows = cursor.fetchall()
+        context['project'] = rows[0]
 
     return render(request, 'project_details.html', context=context)
 
@@ -65,7 +86,7 @@ def login(request):
 
 # placeholder method
 def check_user(request):
-    return redirect('project_list.html')
+    return redirect('/')
 
 '''
 def check_user(request):
@@ -162,15 +183,6 @@ def logout(request):
     return response
 
 
-def login_status(request):
-    context = dict()
-
-    context['user_email'] = request.COOKIES['session_id']
-    context['session_id'] = request.COOKIES['session_id']
-
-    return render(request, "login_status.html", context=context)
-
-
 def inject_user_data(request, context):
     if 'session_id' not in request.COOKIES:
         return
@@ -190,13 +202,48 @@ def inject_user_data(request, context):
     user_email = rows[0][0]
     context['user_email'] = user_email
 
-def funding_list(request):
+
+def edit_project(request):
     context = dict()
-    inject_user_data(request, context)
+    context['pid'] = request.GET['pid']
 
     with connection.cursor() as cursor:
-        cursor.execute("SELECT user_id, project_id, amount FROM funding")
-        row = cursor.fetchall()
-        context['funding'] = row
+        cursor.execute(
+            "SELECT title, description, target_fund, start_date, end_date FROM projects WHERE pid = %s"
+            % context['pid']
+        )
+        rows = cursor.fetchall()
 
-    return render(request, 'funding_list.html', context=context)
+    context['title'], context['description'], context['target_fund'], context['start_date'], context['end_date'] = rows[0]
+
+    return render(request, 'edit_project.html', context=context)
+
+
+def update_project(request):
+    pid = request.GET['pid']
+    with connection.cursor() as cursor:
+        cursor.execute(
+            "UPDATE projects SET title = '%s', description = '%s', target_fund = %s, start_date = '%s', end_date = '%s' WHERE pid = %s"
+            % (request.POST['title'],
+               request.POST['description'],
+               request.POST['target_fund'],
+               request.POST['start_date'],
+               request.POST['end_date'],
+               pid)
+        )
+        connection.commit()
+
+    return redirect('/')
+
+
+def delete_project(request):
+    pid = request.GET['pid']
+    with connection.cursor() as cursor:
+        #try:
+            cursor.execute(
+                "DELETE FROM projects WHERE pid = %s"
+                % (pid)
+            )
+            connection.commit()
+
+    return redirect('/')

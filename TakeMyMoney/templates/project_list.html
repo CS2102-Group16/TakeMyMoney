@@ -5,6 +5,18 @@
 {% block content %}
     <div class="container">
         <h1>Project list</h1>
+        <div class="dropdown">
+            <button class="btn btn-default dropdown-toggle" type="button" id="categoryMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                Category
+                <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" id="categoryList" aria-labelledby="categoryMenu">
+                <li><a href="/projectList/?category=All">All</a></li>
+                {% for category in categories %}
+                <li><a href="/projectList/?category={{ category.0 }}">{{ category.0 }}</a></li>
+                {% endfor %}
+            </ul>
+        </div>
         <table class="table">
             <thead>
                 <th>Title</th>
@@ -16,7 +28,7 @@
             <tbody>
             {% for project in projects %}
             <tr>
-                <td>{{ project.0 }}</td>
+                <td><a href="/projectDetails/?pid={{ project.5 }}">{{ project.0 }}</a></td>
                 <td>{{ project.1 }}</td>
                 <td>{{ project.2 }}</td>
                 <td>{{ project.3 }}</td>

@@ -4,9 +4,20 @@ CREATE TABLE projects(
 	description VARCHAR(1000),
 	start_date DATE,
 	end_date DATE,
-	target_fund INTEGER
+	target_fund INTEGER, 
+	photo_url VARCHAR(1000)
 );
 
+CREATE TABLE categories(
+    name VARCHAR(100) NOT NULL PRIMARY KEY
+);
+
+CREATE TABLE projects_categories(
+    category_name VARCHAR(100) NOT NULL,
+    pid INTEGER NOT NULL,
+    FOREIGN KEY (pid) REFERENCES projects(pid),
+    FOREIGN KEY (category_name) REFERENCES categories(name)
+);
 
 /*  user role is the default
     admin role (EVENTUALLY) allows creation, deletion and modification of all entries
