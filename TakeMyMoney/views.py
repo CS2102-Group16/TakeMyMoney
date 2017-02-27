@@ -125,7 +125,7 @@ def user_list(request):
     inject_user_data(request, context)
 
     with connection.cursor() as cursor:
-        user_attrs = ['user_email', 'user_id', 'password', 'role']
+        user_attrs = ['user_email', 'user_id', 'role']
         cursor.execute('SELECT ' + ', '.join(user_attrs) + ' FROM users')
         rows = cursor.fetchall()
         users = Helper.db_rows_to_dict(user_attrs, rows)
