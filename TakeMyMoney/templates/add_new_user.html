@@ -8,17 +8,22 @@
     <form action="/storeUser/" method="POST">
         {% csrf_token %}
         <div class="form-group">
+            <label for="name">Name</label>
+            <input type="text" class="form-control" name="name" id="name" placeholder="John Doe" required>
+        </div>
+
+        <div class="form-group">
             <label for="user_email">Email address</label>
-            <input type="text" class="form-control" name="user_email" id="user_email" placeholder="user@example.com">
+            <input type="text" class="form-control" name="user_email" id="user_email" placeholder="user@example.com" required>
         </div>
 
         <div class="form-group">
             <label for="password">Password</label>
-            <input type="text" class="form-control" name="password" id="password" placeholder="eg123">
+            <input type="password" class="form-control" name="password" id="password" placeholder="Password" required>
         </div>
         <div class="form-group">
             <label for="confirm_password">Confirm Password</label>
-            <input type="text" class="form-control" name="confirm_password" id="confirm_password" placeholder="eg123">
+            <input type="password" class="form-control" name="confirm_password" id="confirm_password" placeholder="Password" required>
             <!-- code for password validation not working
 
             <input type="text" class="form-control" name="confirm_password" id="confirm_password" placeholder="eg123" onkeyup="checkPass(); return false;">
