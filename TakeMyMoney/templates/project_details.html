@@ -4,6 +4,11 @@
 
 {% block style %}
     <style>
+        .project_img {
+            max-width: 800px;
+            max-height: 600px;
+        }
+
         .project-footer {
             width: 100%;
             overflow: auto;
@@ -33,7 +38,7 @@
             <p class="text-center">{{ project.description }}</p>
             {% if project.photo_url %}
                 <img class="center-block" src="{{ project.photo_url }}"
-                 alt="project.photo_url" width="800px">
+                 alt="project.photo_url" id="project_img">
             {% endif %}
             <div class="project-footer">
                 <div class="pull-left">
