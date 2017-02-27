@@ -1,3 +1,14 @@
+/*  Two types of user: 'user' or 'admin.'
+    Admin role (EVENTUALLY) allows creation, deletion and modification of all entries
+*/
+CREATE TABLE users(
+    user_id SERIAL PRIMARY KEY,
+    name VARCHAR(200) NOT NULL,
+    user_email VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(15) NOT NULL,
+    role VARCHAR(10) NOT NULL DEFAULT 'user'
+);
+
 CREATE TABLE projects(
     pid SERIAL PRIMARY KEY,
 	title VARCHAR(100) NOT NULL,
@@ -18,17 +29,6 @@ CREATE TABLE projects_categories(
     pid INTEGER NOT NULL,
     FOREIGN KEY (pid) REFERENCES projects(pid),
     FOREIGN KEY (category_name) REFERENCES categories(name)
-);
-
-/*  Two types of user: 'user' or 'admin.'
-    Admin role (EVENTUALLY) allows creation, deletion and modification of all entries
-*/
-CREATE TABLE users(
-    user_id SERIAL PRIMARY KEY,
-    name VARCHAR(200) NOT NULL,
-    user_email VARCHAR(100) UNIQUE NOT NULL,
-    password VARCHAR(15) NOT NULL,
-    role VARCHAR(10) NOT NULL DEFAULT 'user'
 );
 
 CREATE TABLE sessions(
