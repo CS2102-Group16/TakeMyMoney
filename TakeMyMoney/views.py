@@ -66,14 +66,24 @@ def add_new_project(request):
 
 
 def store_project(request):
-    upload_result = cloudinary.uploader.upload(request.FILES['photo'])
+    upload_result = None
+    if len(request.FILES) > 0:
+        upload_result = cloudinary.uploader.upload(request.FILES['photo'])
 
     with connection.cursor() as cursor:
         #try:
-            sql = "INSERT INTO projects(title, description, target_fund, photo_url, start_date, end_date) " \
-                  "VALUES (%s, %s, %s, %s, %s, %s)"
-            args = (request.POST['title'], request.POST['description'], request.POST['target_fund'],
-                    upload_result['url'], request.POST['start_date'], request.POST['end_date'])
+        # ugly copy-and-paste for now
+            if upload_result:
+                sql = "INSERT INTO projects(title, description, target_fund, photo_url, start_date, end_date) " \
+                      "VALUES (%s, %s, %s, %s, %s, %s)"
+                args = (request.POST['title'], request.POST['description'], request.POST['target_fund'],
+                        upload_result['url'], request.POST['start_date'], request.POST['end_date'])
+            else:
+                sql = "INSERT INTO projects(title, description, target_fund, start_date, end_date) " \
+                      "VALUES (%s, %s, %s, %s, %s)"
+                args = (request.POST['title'], request.POST['description'], request.POST['target_fund'],
+                        request.POST['start_date'], request.POST['end_date'])
+
             cursor.execute(sql, args)
             connection.commit()
         # except Exception:
