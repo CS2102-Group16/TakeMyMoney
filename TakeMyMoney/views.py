@@ -76,6 +76,15 @@ def project_details(request):
 
     return render(request, 'project_details.html', context=context)
 
+def funding_list(request):
+    context = dict()
+    inject_user_data(request, context)
+
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT user_id, project_id, amount FROM funding")
+        row = cursor.fetchall()
+        context['funding'] = row
+    return render(request, 'funding_list.html', context=context)
 
 def login(request):
     if 'session_id' in request.COOKIES:
