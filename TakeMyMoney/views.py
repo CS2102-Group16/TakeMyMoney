@@ -235,6 +235,7 @@ def update_project(request):
     return redirect('/')
 
 
+
 def delete_project(request):
     pid = request.GET['pid']
     with connection.cursor() as cursor:
