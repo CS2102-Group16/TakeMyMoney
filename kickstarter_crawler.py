@@ -67,9 +67,7 @@ def get_projects(hrefs):
     return projects
 
 if __name__ == '__main__':
-    with open('kickstarter.html', 'r') as f:
-        html = f.read()
-    # html = download_page(home_page)
+    html = download_page(home_page)
     soup = BeautifulSoup(html, 'html.parser')
     link_elems = soup.select(project_link_elem)
     hrefs = get_href_list(link_elems)
