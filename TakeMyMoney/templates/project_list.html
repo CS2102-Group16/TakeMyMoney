@@ -13,7 +13,7 @@
             <ul class="dropdown-menu" id="categoryList" aria-labelledby="categoryMenu">
                 <li><a href="/projectList/?category=All">All</a></li>
                 {% for category in categories %}
-                <li><a href="/projectList/?category={{ category.0 }}">{{ category.0 }}</a></li>
+                <li><a href="/projectList/?category={{ category.0 }}">{{ category.name }}</a></li>
                 {% endfor %}
             </ul>
         </div>
@@ -28,11 +28,11 @@
             <tbody>
             {% for project in projects %}
             <tr>
-                <td><a href="/projectDetails/?pid={{ project.5 }}">{{ project.0 }}</a></td>
-                <td>{{ project.1 }}</td>
-                <td>{{ project.2 }}</td>
-                <td>{{ project.3 }}</td>
-                <td>{{ project.4 }}</td>
+                <td><a href="/projectDetails/?pid={{ project.pid }}">{{ project.title }}</a></td>
+                <td>{{ project.description }}</td>
+                <td>{{ project.target_fund }}</td>
+                <td>{{ project.start_date }}</td>
+                <td>{{ project.end_date }}</td>
             </tr>
             {% endfor %}
             </tbody>
