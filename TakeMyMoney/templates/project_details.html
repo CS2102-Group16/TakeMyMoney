@@ -31,8 +31,10 @@
         <div class="container">
             <h1 class="text-center">{{ project.title }}</h1>
             <p class="text-center">{{ project.description }}</p>
-            <img class="center-block" src="{{ project.photo_url }}"
-                 alt="Shut up and take my money" width="800px">
+            {% if project.photo_url %}
+                <img class="center-block" src="{{ project.photo_url }}"
+                 alt="project.photo_url" width="800px">
+            {% endif %}
             <div class="project-footer">
                 <div class="pull-left">
                     <span><b>Target fund: {{ project.target_fund }}</b></span>
