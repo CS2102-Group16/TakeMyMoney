@@ -31,10 +31,12 @@ def project_list(request):
 
 
 def add_new_project(request):
+    context = dict()
+    inject_user_data(request, context)
     if 'session_id' not in request.COOKIES:
         return redirect('/')
 
-    return render(request, 'add_new_project.html', context=None)
+    return render(request, 'add_new_project.html', context=context)
 
 
 def store_project(request):
@@ -75,6 +77,18 @@ def project_details(request):
         context['project'] = rows[0]
 
     return render(request, 'project_details.html', context=context)
+
+
+def add_funding(request):
+    context = dict()
+    inject_user_data(request, context)
+    return render(request, 'add_funding.html', context=context)
+
+
+def store_funding(request):
+    context = dict()
+    inject_user_data(request, context)
+    return redirect('/fundingList')
 
 def funding_list(request):
     context = dict()
@@ -250,8 +264,10 @@ def delete_project(request):
     with connection.cursor() as cursor:
         #try:
             cursor.execute(
-                "DELETE FROM projects WHERE pid = %s"
-                % (pid)
+                "DELETE FROM funding WHERE project_id = %s;"
+                "DELETE FROM projects_categories WHERE pid = %s;"
+                "DELETE FROM projects WHERE pid = %s;"
+                % (pid, pid, pid)
             )
             connection.commit()
 

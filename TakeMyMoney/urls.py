@@ -42,4 +42,6 @@ urlpatterns = [
     url(r'^signOut/', views.logout),
 
     url(r'^fundingList/', views.funding_list),
+    url(r'^addFunding/', views.add_funding),
+    url(r'^storeFunding/', views.storeFunding),
 ]
