@@ -37,11 +37,15 @@
                         <ul class="dropdown-menu">
                             <li><a href="/projectList/">All projects</a></li>
                             {% if user_email %}
-                            <li><a href="/projectList/">My projects</a></li>
-                            <li><a href="/addNewProject/">Add new project</a></li>
+                            <li class="divider"></li>
+                            <li><a href="/projectList/?filter=pledged">My pledged projects</a></li>
+                            <li><a href="/projectList/?filter=owned">Owned projects</a></li>
                             {% endif %}
                         </ul>
                     </li>
+                    {% if user_email %}
+                    <li><a href="/addNewProject/">Add new project</a></li>
+                    {% endif %}
                 </ul>
                 {% if user_email %}
                 <ul class="nav navbar-nav navbar-right">
