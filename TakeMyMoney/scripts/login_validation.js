@@ -9,7 +9,7 @@ function validate(){
     var password = document.getElementById("password").value;
     if ( user_email == "admin" && password == "admin"){
         alert ("Login successfully");
-        window.location = "success.html"; // Redirecting to other page.
+        window.location = ('http://projectList/'); // Redirecting to other page.
         return false;
     }
 

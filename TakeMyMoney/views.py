@@ -61,16 +61,11 @@ def store_project(request):
 
     with connection.cursor() as cursor:
         #try:
-            cursor.execute(
-                "INSERT INTO projects(title, description, target_fund, photo_url, start_date, end_date) "
-                "VALUES ('%s', '%s', '%s', '%s', '%s', '%s')"
-                % (request.POST['title'],
-                   request.POST['description'],
-                   request.POST['target_fund'],
-                   upload_result['url'],
-                   request.POST['start_date'],
-                   request.POST['end_date'])
-            )
+            sql = "INSERT INTO projects(title, description, target_fund, photo_url, start_date, end_date) " \
+                  "VALUES (%s, %s, %s, %s, %s, %s)"
+            args = (request.POST['title'], request.POST['description'], request.POST['target_fund'],
+                    upload_result['url'], request.POST['start_date'], request.POST['end_date'])
+            cursor.execute(sql, args)
             connection.commit()
         # except Exception:
         #     return redirect('/addNewProject/')
@@ -88,7 +83,9 @@ def project_details(request):
 
     with connection.cursor() as cursor:
         project_attrs = ['title', 'description', 'target_fund', 'photo_url', 'start_date', 'end_date', 'pid']
-        cursor.execute('SELECT ' + ', '.join(project_attrs) + ' FROM projects WHERE pid = %s' % pid)
+        sql = 'SELECT ' + ', '.join(project_attrs) + ' FROM projects WHERE pid = %s'
+        args = (pid, )
+        cursor.execute(sql, args)
         rows = cursor.fetchall()
         projects = Helper.db_rows_to_dict(project_attrs, rows)
         context['project'] = projects[0]
@@ -126,11 +123,9 @@ def add_new_user(request):
 def store_user(request):
     with connection.cursor() as cursor:
         #try:
-            cursor.execute(
-                "INSERT INTO users(user_email, password, role) VALUES ('%s', '%s', 'user')"
-                % (request.POST['user_email'],
-                   request.POST['password'])
-            )
+            sql = 'INSERT INTO users(user_email, password, role) VALUES (%s, %s, \'user\')'
+            args = (request.POST['user_email'], request.POST['password'])
+            cursor.execute(sql, args)
             connection.commit()
         # except Exception:
         #     return redirect('/userList/')
@@ -143,7 +138,7 @@ def user_list(request):
     inject_user_data(request, context)
 
     with connection.cursor() as cursor:
-        user_attrs = ['user_email', 'user_id', 'password', 'role']
+        user_attrs = ['user_email', 'user_id', 'role']
         cursor.execute('SELECT ' + ', '.join(user_attrs) + ' FROM users')
         rows = cursor.fetchall()
         users = Helper.db_rows_to_dict(user_attrs, rows)
@@ -160,9 +155,9 @@ def attempt_login(request):
     if 'user_email' not in request.POST or 'password' not in request.POST:
         return redirect('/')
     with connection.cursor() as cursor:
-        cursor.execute(
-            "SELECT user_id, password FROM users WHERE user_email = '%s'" % request.POST['user_email']
-        )
+        sql = 'SELECT user_id, password FROM users WHERE user_email = %s'
+        args = (request.POST['user_email'], )
+        cursor.execute(sql, args)
         rows = cursor.fetchall()
     if len(rows) == 0:
         return redirect('/')
@@ -194,9 +189,9 @@ def logout(request):
     session_id = request.COOKIES['session_id']
 
     with connection.cursor() as cursor:
-        cursor.execute(
-            "DELETE FROM sessions WHERE session_id = '%s'" % session_id
-        )
+        sql = 'DELETE FROM sessions WHERE session_id = %s'
+        args = (session_id, )
+        cursor.execute(sql, args)
         connection.commit()
 
     response = redirect('/')
@@ -212,10 +207,9 @@ def inject_user_data(request, context):
 
     with connection.cursor() as cursor:
         user_attrs = ['user_email']
-        cursor.execute(
-            "SELECT u.user_email FROM users u NATURAL JOIN sessions s WHERE s.session_id = '%s'"
-            % session_id
-        )
+        sql = 'SELECT u.user_email FROM users u NATURAL JOIN sessions s WHERE s.session_id = %s'
+        args = (session_id, )
+        cursor.execute(sql, args)
         rows = cursor.fetchall()
         users = Helper.db_rows_to_dict(user_attrs, rows)
 
@@ -231,10 +225,9 @@ def edit_project(request):
     context['pid'] = request.GET['pid']
 
     with connection.cursor() as cursor:
-        cursor.execute(
-            "SELECT title, description, target_fund, start_date, end_date FROM projects WHERE pid = %s"
-            % context['pid']
-        )
+        sql = 'SELECT title, description, target_fund, start_date, end_date FROM projects WHERE pid = %s'
+        args = (context['pid'], )
+        cursor.execute(sql, args)
         rows = cursor.fetchall()
 
     context['title'], context['description'], context['target_fund'], context['start_date'], context['end_date'] = rows[0]
@@ -245,28 +238,24 @@ def edit_project(request):
 def update_project(request):
     pid = request.GET['pid']
     with connection.cursor() as cursor:
-        cursor.execute(
-            "UPDATE projects SET title = '%s', description = '%s', target_fund = %s, start_date = '%s', end_date = '%s' WHERE pid = %s"
-            % (request.POST['title'],
-               request.POST['description'],
-               request.POST['target_fund'],
-               request.POST['start_date'],
-               request.POST['end_date'],
-               pid)
-        )
+        sql = 'UPDATE projects SET title = %s, description = %s, target_fund = %s, start_date = %s, end_date = %s ' \
+              'WHERE pid = %s'
+        args = (request.POST['title'], request.POST['description'], request.POST['target_fund'],
+               request.POST['start_date'], request.POST['end_date'], pid)
+        cursor.execute(sql, args)
         connection.commit()
 
     return redirect('/')
+
 
 
 def delete_project(request):
     pid = request.GET['pid']
     with connection.cursor() as cursor:
         #try:
-            cursor.execute(
-                "DELETE FROM projects WHERE pid = %s"
-                % (pid)
-            )
+            sql =  'DELETE FROM projects WHERE pid = %s'
+            args = (pid, )
+            cursor.execute(sql, args)
             connection.commit()
 
     return redirect('/')

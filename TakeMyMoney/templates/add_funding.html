@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}Add funding{% endblock %}
+
+{% block content %}
+
+<div class="container">
+        <h1>Add Funds</h1>
+        <form action="/storeFunding/?pid={{ pid }}" method="POST" onsubmit="return confirm('Are you sure the funding amount is correct');">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="funds">Funds</label>
+                <input type="number" class="form-control" name="funds" id="funds" placeholder="Example input">
+            </div>
+            <button type="submit" class="btn btn-primary pull-right">Submit</button>
+        </form>
+    </div>
+{% endblock %}
