@@ -3,9 +3,10 @@
 {% block title %}Add funding{% endblock %}
 
 {% block content %}
+
 <div class="container">
         <h1>Add Funds</h1>
-        <form action="/storeFunding/?project.pid={{ pid }}" method="POST">
+        <form action="/storeFunding/?pid={{ pid }}" method="POST" onsubmit="return confirm('Are you sure the funding amount is correct');">
             {% csrf_token %}
             <div class="form-group">
                 <label for="funds">Funds</label>

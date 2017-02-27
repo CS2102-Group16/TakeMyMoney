@@ -94,7 +94,26 @@ def add_funding(request):
 def store_funding(request):
     context = dict()
     inject_user_data(request, context)
+    session_id = request.COOKIES['session_id']
+    pid = request.GET['pid']
+
+    # Missing method to find user id
+
+    # request.GET['pid'] returning empty
+
+    user_id = '1'  # placeholder value
+    pid = '4'  # placeholder value
+
+    with connection.cursor() as cursor:
+        cursor.execute(
+            "INSERT INTO funding(user_id, pid, amount) VALUES ('%s', '%s', '%s')"
+            % (user_id,
+               pid,
+               request.POST['funds'])
+        )
+    connection.commit()
     return redirect('/fundingList')
+
 
 def funding_list(request):
     context = dict()
@@ -105,6 +124,7 @@ def funding_list(request):
         row = cursor.fetchall()
         context['funding'] = row
     return render(request, 'funding_list.html', context=context)
+
 
 def login(request):
     if 'session_id' in request.COOKIES:
