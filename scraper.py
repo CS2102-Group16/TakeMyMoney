@@ -1,6 +1,6 @@
 """
 DISCLAIMER:
-This crawler is only for educational purposes. It is part of a project with the topic 'Crowdfunding.' It is by no means
+This scraper is only for educational purposes. It is part of a project with the topic 'Crowdfunding.' It is by no means
 intended for illegal use whatsoever.
 It doesn't work perfectly, but it's fine for now. It may break at times.
 And the produced SQL queries may need very little manual corrections
