@@ -43,5 +43,5 @@ urlpatterns = [
 
     url(r'^fundingList/', views.funding_list),
     url(r'^addFunding/', views.add_funding),
-    url(r'^storeFunding/', views.storeFunding),
+    url(r'^storeFunding/', views.store_funding),
 ]

@@ -101,7 +101,7 @@ def funding_list(request):
     inject_user_data(request, context)
 
     with connection.cursor() as cursor:
-        cursor.execute("SELECT user_id, project_id, amount FROM funding")
+        cursor.execute("SELECT user_id, pid, amount FROM funding")
         row = cursor.fetchall()
         context['funding'] = row
     return render(request, 'funding_list.html', context=context)
@@ -274,7 +274,7 @@ def delete_project(request):
     with connection.cursor() as cursor:
         #try:
             cursor.execute(
-                "DELETE FROM funding WHERE project_id = %s;"
+                "DELETE FROM funding WHERE pid = %s;"
                 "DELETE FROM projects_categories WHERE pid = %s;"
                 "DELETE FROM projects WHERE pid = %s;"
                 % (pid, pid, pid)

@@ -4,12 +4,14 @@
 
 {% block content %}
 <div class="container">
-        <h1>Add new project</h1>
-        <form action="/storeFunding/" method="POST" enctype="multipart/form-data">
+        <h1>Add Funds</h1>
+        <form action="/storeFunding/?project.pid={{ pid }}" method="POST">
+            {% csrf_token %}
             <div class="form-group">
                 <label for="funds">Funds</label>
-                <input type="text" class="form-control" name="funds" id="funds" placeholder="Example input">
+                <input type="number" class="form-control" name="funds" id="funds" placeholder="Example input">
             </div>
+            <button type="submit" class="btn btn-primary pull-right">Submit</button>
         </form>
     </div>
 {% endblock %}

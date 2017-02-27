@@ -36,7 +36,7 @@ CREATE TABLE sessions(
 
 CREATE TABLE funding(
     user_id INTEGER REFERENCES users(user_id),
-    project_id INTEGER REFERENCES projects(pid),
+    pid INTEGER REFERENCES projects(pid),
     amount INTEGER,
     PRIMARY KEY (user_id, project_id)
 );
