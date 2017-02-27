@@ -4,6 +4,11 @@
 
 {% block style %}
     <style>
+        .project_img {
+            max-width: 800px;
+            max-height: 600px;
+        }
+
         .project-footer {
             width: 100%;
             overflow: auto;
@@ -29,23 +34,25 @@
 {% block content %}
     <div class="container">
         <div class="container">
-            <h1 class="text-center">{{ project.0 }}</h1>
-            <p class="text-center">{{ project.1 }}</p>
-            <img class="center-block" src="{{ project.3 }}"
-                 alt="Shut up and take my money" width="800px">
+            <h1 class="text-center">{{ project.title }}</h1>
+            <p class="text-center">{{ project.description }}</p>
+            {% if project.photo_url %}
+                <img class="center-block" src="{{ project.photo_url }}"
+                 alt="project.photo_url" id="project_img">
+            {% endif %}
             <div class="project-footer">
                 <div class="pull-left">
-                    <span><b>Target fund: {{ project.2 }}</b></span>
+                    <span><b>Target fund: {{ project.target_fund }}</b></span>
                     <div class="funded-bar-wrapper bg-grey">
                         <div class="funded-bar bg-green" style="width: 60%"></div>
                     </div>
                 </div>
-                <span class="pull-right"><b>Ends on: {{ project.5 }}</b></span>
+                <span class="pull-right"><b>Ends on: {{ project.end_date }}</b></span>
             </div>
             <div>
                 <button type="button" class="btn btn-success pull-left">Pledge</button>
-                <a href="/editProject/?pid={{ project.6 }}" class="btn btn-warning pull-right" role="button">Edit</a>
-                <a href="/deleteProject/?pid={{ project.6 }}" class="btn btn-danger pull-right" role="button">Delete</a>
+                <a href="/editProject/?pid={{ project.pid }}" class="btn btn-warning pull-right" role="button">Edit</a>
+                <a href="/deleteProject/?pid={{ project.pid }}" class="btn btn-danger pull-right" role="button">Delete</a>
             </div>
         </div>
     </div>

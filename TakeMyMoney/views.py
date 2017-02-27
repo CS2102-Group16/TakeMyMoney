@@ -3,24 +3,30 @@ from django.db import connection
 from django.shortcuts import render, redirect
 import uuid
 
-
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
+
+from helper import Helper
+
 
 def project_list(request):
     context = dict()
     inject_user_data(request, context)
 
     with connection.cursor() as cursor:
-        cursor.execute("SELECT name FROM categories")
+        category_attrs = ['name']
+        cursor.execute('SELECT ' + ', '.join(category_attrs) + ' FROM categories')
         rows = cursor.fetchall()
-        context['categories'] = rows
+        categories = Helper.db_rows_to_dict(category_attrs, rows)
+        context['categories'] = categories
 
     with connection.cursor() as cursor:
-        cursor.execute("SELECT title, description, target_fund, start_date, end_date, pid FROM projects")
+        project_attrs = ['title', 'description', 'target_fund', 'start_date', 'end_date', 'pid']
+        cursor.execute('SELECT ' + ', '.join(project_attrs) + ' FROM projects')
         rows = cursor.fetchall()
-        context['projects'] = rows
+        projects = Helper.db_rows_to_dict(project_attrs, rows)
+        context['projects'] = projects
 
     # if 'category' in request.GET:
     #     category_name = request.GET['category']
@@ -70,11 +76,11 @@ def project_details(request):
     pid = request.GET['pid']
 
     with connection.cursor() as cursor:
-        cursor.execute("SELECT title, description, target_fund, photo_url, start_date, end_date, pid "
-                       "FROM projects WHERE pid = %s"
-                       % pid)
+        project_attrs = ['title', 'description', 'target_fund', 'photo_url', 'start_date', 'end_date', 'pid']
+        cursor.execute('SELECT ' + ', '.join(project_attrs) + ' FROM projects WHERE pid = %s' % pid)
         rows = cursor.fetchall()
-        context['project'] = rows[0]
+        projects = Helper.db_rows_to_dict(project_attrs, rows)
+        context['project'] = projects[0]
 
     return render(request, 'project_details.html', context=context)
 
@@ -147,9 +153,11 @@ def user_list(request):
     inject_user_data(request, context)
 
     with connection.cursor() as cursor:
-        cursor.execute("SELECT user_email, user_id, password, role FROM users")
-        row = cursor.fetchall()
-        context['users'] = row
+        user_attrs = ['user_email', 'user_id', 'password', 'role']
+        cursor.execute('SELECT ' + ', '.join(user_attrs) + ' FROM users')
+        rows = cursor.fetchall()
+        users = Helper.db_rows_to_dict(user_attrs, rows)
+        context['users'] = users
 
     return render(request, 'user_list.html', context=context)
 
@@ -213,16 +221,18 @@ def inject_user_data(request, context):
     session_id = request.COOKIES['session_id']
 
     with connection.cursor() as cursor:
+        user_attrs = ['user_email']
         cursor.execute(
             "SELECT u.user_email FROM users u NATURAL JOIN sessions s WHERE s.session_id = '%s'"
             % session_id
         )
         rows = cursor.fetchall()
+        users = Helper.db_rows_to_dict(user_attrs, rows)
 
-    if len(rows) == 0:
+    if len(users) == 0:
         return
 
-    user_email = rows[0][0]
+    user_email = users[0]['user_email']
     context['user_email'] = user_email
 
 
