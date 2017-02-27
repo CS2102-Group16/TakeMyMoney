@@ -13,20 +13,40 @@ from helper import Helper
 def project_list(request):
     context = dict()
     inject_user_data(request, context)
+    filtering = request.GET.get('filter', None)
 
-    with connection.cursor() as cursor:
-        category_attrs = ['name']
-        cursor.execute('SELECT ' + ', '.join(category_attrs) + ' FROM categories')
-        rows = cursor.fetchall()
-        categories = Helper.db_rows_to_dict(category_attrs, rows)
-        context['categories'] = categories
+    if filtering == 'owned':
+        with connection.cursor() as cursor:
+            project_attrs = ['title', 'description', 'target_fund', 'start_date', 'end_date', 'pid']
+            cursor.execute('SELECT ' +
+                           ', '.join(['p.' + project_attr for project_attr in project_attrs]) +
+                           ' FROM projects p WHERE p.user_id = %s' % context['user_id'])
+            rows = cursor.fetchall()
+            projects = Helper.db_rows_to_dict(project_attrs, rows)
+            context['projects'] = projects
+    elif filtering == 'pledged':
+        with connection.cursor() as cursor:
+            project_attrs = ['title', 'description', 'target_fund', 'start_date', 'end_date', 'pid']
+            cursor.execute('SELECT ' +
+                           ', '.join(['p.' + project_attr for project_attr in project_attrs]) +
+                           ' FROM projects p INNER JOIN funding f ON p.pid = f.pid AND f.user_id = %s' % context['user_id'])
+            rows = cursor.fetchall()
+            projects = Helper.db_rows_to_dict(project_attrs, rows)
+            context['projects'] = projects
+    else:
+        with connection.cursor() as cursor:
+            category_attrs = ['name']
+            cursor.execute('SELECT ' + ', '.join(category_attrs) + ' FROM categories')
+            rows = cursor.fetchall()
+            categories = Helper.db_rows_to_dict(category_attrs, rows)
+            context['categories'] = categories
 
-    with connection.cursor() as cursor:
-        project_attrs = ['title', 'description', 'target_fund', 'start_date', 'end_date', 'pid']
-        cursor.execute('SELECT ' + ', '.join(project_attrs) + ' FROM projects')
-        rows = cursor.fetchall()
-        projects = Helper.db_rows_to_dict(project_attrs, rows)
-        context['projects'] = projects
+        with connection.cursor() as cursor:
+            project_attrs = ['title', 'description', 'target_fund', 'start_date', 'end_date', 'pid']
+            cursor.execute('SELECT ' + ', '.join(project_attrs) + ' FROM projects')
+            rows = cursor.fetchall()
+            projects = Helper.db_rows_to_dict(project_attrs, rows)
+            context['projects'] = projects
 
     # if 'category' in request.GET:
     #     category_name = request.GET['category']
@@ -37,10 +57,12 @@ def project_list(request):
 
 
 def add_new_project(request):
-    if 'session_id' not in request.COOKIES:
+    context = dict()
+    inject_user_data(request, context)
+    if 'user_id' not in context:
         return redirect('/')
 
-    return render(request, 'add_new_project.html', context=None)
+    return render(request, 'add_new_project.html', context=context)
 
 
 def store_project(request):
@@ -66,6 +88,7 @@ def search_project(request):
 
 def project_details(request):
     context = dict()
+    inject_user_data(request, context)
     pid = request.GET['pid']
 
     with connection.cursor() as cursor:
@@ -76,6 +99,15 @@ def project_details(request):
         rows = cursor.fetchall()
         projects = Helper.db_rows_to_dict(project_attrs, rows)
         context['project'] = projects[0]
+
+    with connection.cursor() as cursor:
+        funding_attrs = ['pledger', 'amount']
+        sql = 'SELECT u.name, f.amount FROM users u INNER JOIN funding f ON u.user_id = f.user_id AND f.pid = %s'
+        args = (pid, )
+        cursor.execute(sql, args)
+        rows = cursor.fetchall()
+        pledges = Helper.db_rows_to_dict(funding_attrs, rows)
+        context['pledges'] = pledges
 
     return render(request, 'project_details.html', context=context)
 
@@ -110,8 +142,8 @@ def add_new_user(request):
 def store_user(request):
     with connection.cursor() as cursor:
         #try:
-            sql = 'INSERT INTO users(user_email, password, role) VALUES (%s, %s, \'user\')'
-            args = (request.POST['user_email'], request.POST['password'])
+            sql = 'INSERT INTO users(user_email, password, name, role) VALUES (%s, %s, %s, \'user\')'
+            args = (request.POST['user_email'], request.POST['password'], request.POST['name'])
             cursor.execute(sql, args)
             connection.commit()
         # except Exception:
@@ -193,8 +225,8 @@ def inject_user_data(request, context):
     session_id = request.COOKIES['session_id']
 
     with connection.cursor() as cursor:
-        user_attrs = ['user_email']
-        sql = 'SELECT u.user_email FROM users u NATURAL JOIN sessions s WHERE s.session_id = %s'
+        user_attrs = ['user_email', 'user_id']
+        sql = 'SELECT u.user_email, u.user_id FROM users u NATURAL JOIN sessions s WHERE s.session_id = %s'
         args = (session_id, )
         cursor.execute(sql, args)
         rows = cursor.fetchall()
@@ -204,7 +236,9 @@ def inject_user_data(request, context):
         return
 
     user_email = users[0]['user_email']
+    user_id = users[0]['user_id']
     context['user_email'] = user_email
+    context['user_id'] = user_id
 
 
 def edit_project(request):
@@ -235,7 +269,6 @@ def update_project(request):
     return redirect('/')
 
 
-
 def delete_project(request):
     pid = request.GET['pid']
     with connection.cursor() as cursor:
@@ -246,3 +279,58 @@ def delete_project(request):
             connection.commit()
 
     return redirect('/')
+
+
+def add_funding(request):
+    pid = request.GET['pid']
+    amount = request.POST['amount']
+
+    with connection.cursor() as cursor:
+        # try:
+        project_attrs = ['title']
+        sql = 'SELECT title FROM projects WHERE pid = %s'
+        args = (pid,)
+        cursor.execute(sql, args)
+        rows = cursor.fetchall()
+        projects = Helper.db_rows_to_dict(project_attrs, rows)
+
+    context = {
+        'title': projects[0]['title'],
+        'amount': amount,
+        'pid': pid,
+    }
+
+    return render(request, 'add_funding.html', context=context)
+
+
+def store_funding(request):
+    context = dict()
+    inject_user_data(request, context)
+    pid = request.GET.get('pid', None)
+    amount = request.GET['amount']
+    if pid is None:
+        return redirect('/')
+    if 'user_id' not in context:
+        return redirect('/projectDetails/?pid=%s' % pid)
+
+    with connection.cursor() as cursor:
+        sql = 'SELECT 1 FROM funding WHERE user_id = %s AND pid = %s'
+        args = (context['user_id'], pid)
+        cursor.execute(sql, args)
+        rows = cursor.fetchall()
+        funding_exists = len(rows) > 0
+
+    if funding_exists:
+        with connection.cursor() as cursor:
+            sql = 'UPDATE funding SET amount = %s WHERE user_id = %s AND pid = %s'
+            args = (amount, context['user_id'], pid)
+            cursor.execute(sql, args)
+            connection.commit()
+    else:
+        with connection.cursor() as cursor:
+            sql = 'INSERT INTO funding (user_id, pid, amount) VALUES (%s, %s, %s)'
+            args = (context['user_id'], pid, amount)
+            cursor.execute(sql, args)
+            connection.commit()
+
+    return redirect('/projectDetails/?pid=%s' % pid)
