@@ -41,7 +41,7 @@ urlpatterns = [
     url(r'^attemptLogin/', views.attempt_login),
     url(r'^signOut/', views.logout),
 
-    url(r'^fundingList/', views.funding_list),
-    url(r'^addFunding/', views.add_funding),
-    url(r'^storeFunding/', views.store_funding),
+    # url(r'^fundingList/', views.funding_list),
+    # url(r'^addFunding/', views.add_funding),
+    # url(r'^storeFunding/', views.store_funding),
 ]
