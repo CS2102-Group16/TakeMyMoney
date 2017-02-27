@@ -21,17 +21,30 @@ def project_list(request):
         categories = Helper.db_rows_to_dict(category_attrs, rows)
         context['categories'] = categories
 
+
     with connection.cursor() as cursor:
+        #project_attrs = ['title', 'description', 'target_fund', 'start_date', 'end_date', 'pid']
+        #cursor.execute(query_str)
+        #cursor.execute('SELECT ' + ', '.join(project_attrs) + ' FROM projects')
+        #rows = cursor.fetchall()
+        #projects = Helper.db_rows_to_dict(project_attrs, rows)
+        #context['projects'] = projects
         project_attrs = ['title', 'description', 'target_fund', 'start_date', 'end_date', 'pid']
-        cursor.execute('SELECT ' + ', '.join(project_attrs) + ' FROM projects')
+        query_str = 'SELECT ' + ', '.join(project_attrs) + ' FROM projects'
+
+        if 'category' in request.GET:
+            category_name = request.GET['category']
+            query_str = "SELECT p.title, p.description, p.target_fund, p.start_date, p.end_date, p.pid" \
+                        " FROM projects p"\
+                        " INNER JOIN projects_categories pc ON p.pid = pc.pid" \
+                        " INNER JOIN categories c ON pc.category_name = c.name WHERE c.name = '%s'" %(category_name)
+            if category_name == 'All':
+                query_str = 'SELECT ' + ', '.join(project_attrs) + ' FROM projects'
+
+        cursor.execute(query_str)
         rows = cursor.fetchall()
         projects = Helper.db_rows_to_dict(project_attrs, rows)
         context['projects'] = projects
-
-    # if 'category' in request.GET:
-    #     category_name = request.GET['category']
-    # query_str = "SELECT p.title, p.description, p.target_fund, p.start_date, p.end_date, p.category FROM projects p " \
-    #             "INNER JOIN categories c ON p.category = c.name WHERE c.name ='%s'"
 
     return render(request, 'project_list.html', context=context)
 
