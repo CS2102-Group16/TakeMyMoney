@@ -12,6 +12,16 @@
  * Go to the directory containing the `manage.py` file.
  * Run `python manage.py runserver`. Your server should now be running at `localhost:8000`.
 
+## Tips
+### Running .sql files without copy-and-pasting
+
+Instead of copying the SQL statements into the `psql` terminal and running it there, you can also run the following command:
+`psql -U postgres -d djangostack -a -f [.sql filename]`
+
+This is especially useful for the database seed files, such as `funding.sql`, `users.sql` or `projects.sql`.
+
+For this command to work, you have to be on the same folder as the `.sql` file.
+
 ## Issues
 ### "The env.py file cannot be imported"
 
