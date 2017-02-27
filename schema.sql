@@ -24,9 +24,10 @@ CREATE TABLE projects_categories(
 */
 CREATE TABLE users(
     user_id SERIAL PRIMARY KEY,
+    name VARCHAR(200),
     user_email VARCHAR(100) UNIQUE,
     password VARCHAR(15) NOT NULL,
-    role VARCHAR(10) NOT NULL
+    role VARCHAR(10) NOT NULL DEFAULT 'user'
 );
 
 CREATE TABLE sessions(
