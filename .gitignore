@@ -1,6 +1,7 @@
 */.idea/*
 .idea/*
 TakeMyMoney/env.py
+TakeMyMoney/cloudinary_auth.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

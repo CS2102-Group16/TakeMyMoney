@@ -4,7 +4,7 @@
 
 {% block style %}
     <style>
-        .project_img {
+        #project_img {
             max-width: 800px;
             max-height: 600px;
         }
@@ -40,6 +40,22 @@
                 <img class="center-block" src="{{ project.photo_url }}"
                  alt="project.photo_url" id="project_img">
             {% endif %}
+            {% if pledges %}
+            <table class="table">
+                <thead>
+                    <th>Pledger</th>
+                    <th>Amount</th>
+                </thead>
+                <tbody>
+                {% for pledge in pledges %}
+                <tr>
+                    <td>{{ pledge.pledger }}</td>
+                    <td>${{ pledge.amount }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
             <div class="project-footer">
                 <div class="pull-left">
                     <span><b>Target fund: {{ project.target_fund }}</b></span>
@@ -49,11 +65,19 @@
                 </div>
                 <span class="pull-right"><b>Ends on: {{ project.end_date }}</b></span>
             </div>
+            {% if user_id %}
             <div>
-                <a href="/addFunding/?pid={{ project.pid }}" class="btn btn-success pull-left" role="button">Pledge</a>
+                <div class="pull-left">
+                    <form action="/addFunding/?pid={{ project.pid }}" method="POST">
+                        {% csrf_token %}
+                        <input type="number" class="form-control" name="amount" id="amount">
+                        <button type="submit" class="btn btn-success">Pledge</button>
+                    </form>
+                </div>
                 <a href="/editProject/?pid={{ project.pid }}" class="btn btn-warning pull-right" role="button">Edit</a>
                 <a href="/deleteProject/?pid={{ project.pid }}" class="btn btn-danger pull-right" role="button">Delete</a>
             </div>
+            {% endif %}
         </div>
     </div>
 {% endblock %}
