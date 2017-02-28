@@ -22,7 +22,7 @@ This is especially useful for the database seed files, such as `funding.sql`, `u
 
 For this command to work, you have to be on the same folder as the `.sql` file.
 
-This command has a small issue where it doesn't update the pid / user_id sequences, so it breaks the registration/project creation flow. See the fix below.
+**NOTE:** This command has a small issue where it doesn't update the `pid` / `user_id` sequences, so it breaks the registration/project creation flow. See the fix [below](#when-registering-a-new-user-or-adding-new-projects-the-database-attempts-to-add-a-piduser_id-starting-from-1-even-after-inserting-the-seed-data).
 
 ## Issues
 ### "The env.py file cannot be imported"
