@@ -67,6 +67,10 @@ def add_new_project(request):
 
 def store_project(request):
     upload_result = None
+    context = dict()
+    inject_user_data(request, context)
+    if 'user_id' not in context:
+        redirect('/')
     if len(request.FILES) > 0:
         upload_result = cloudinary.uploader.upload(request.FILES['photo'])
 
@@ -74,15 +78,15 @@ def store_project(request):
         #try:
         # ugly copy-and-paste for now
             if upload_result:
-                sql = "INSERT INTO projects(title, description, target_fund, photo_url, start_date, end_date) " \
+                sql = "INSERT INTO projects(title, description, target_fund, photo_url, start_date, end_date, user_id) " \
+                      "VALUES (%s, %s, %s, %s, %s, %s, %s)"
+                args = (request.POST['title'], request.POST['description'], request.POST['target_fund'],
+                        upload_result['url'], request.POST['start_date'], request.POST['end_date'], context['user_id'])
+            else:
+                sql = "INSERT INTO projects(title, description, target_fund, start_date, end_date, user_id) " \
                       "VALUES (%s, %s, %s, %s, %s, %s)"
                 args = (request.POST['title'], request.POST['description'], request.POST['target_fund'],
-                        upload_result['url'], request.POST['start_date'], request.POST['end_date'])
-            else:
-                sql = "INSERT INTO projects(title, description, target_fund, start_date, end_date) " \
-                      "VALUES (%s, %s, %s, %s, %s)"
-                args = (request.POST['title'], request.POST['description'], request.POST['target_fund'],
-                        request.POST['start_date'], request.POST['end_date'])
+                        request.POST['start_date'], request.POST['end_date'], context['user_id'])
 
             cursor.execute(sql, args)
             connection.commit()
