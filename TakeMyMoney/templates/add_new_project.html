@@ -4,6 +4,23 @@
 
 {% block content %}
 
+ <script src="js/jquery.js"></script>
+        <script>
+            $(document).ready(function(){
+                document.getElementById("title").value = localStorage.getItem("title");
+                document.getElementById("description").value = localStorage.getItem("description");
+                document.getElementById("target_fund").value = localStorage.getItem("target_fund");
+            });
+        </script>
+        <script>
+            $(window).on('beforeunload', function() {
+                localStorage.setItem("title",document.getElementById("title").value);
+                localStorage.setItem("description",document.getElementById("description").value);
+                localStorage.setItem("target_fund",document.getElementById("target_fund").value);
+            });
+
+        </script>
+
     <div class="container">
         <h1>Add new project</h1>
         <form action="/storeProject/" method="POST" enctype="multipart/form-data">
