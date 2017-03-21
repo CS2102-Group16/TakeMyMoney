@@ -7,6 +7,8 @@ import cloudinary
 import cloudinary.uploader
 import cloudinary.api
 
+import datetime
+
 from helper import Helper
 
 
@@ -81,6 +83,12 @@ def store_project(request):
     with connection.cursor() as cursor:
         #try:
         # ugly copy-and-paste for now
+
+            start_date = datetime.datetime.strptime(request.POST['start_date'], "%Y-%m-%d")
+            end_date = datetime.datetime.strptime(request.POST['end_date'], "%Y-%m-%d")
+
+            if start_date > end_date:
+                redirect('/')
 
             if upload_result:
                 sql = "INSERT INTO projects(title, description, target_fund, photo_url, start_date, end_date, user_id) " \
