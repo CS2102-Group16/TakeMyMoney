@@ -1,7 +1,10 @@
 from django.http import HttpResponse
 from django.db import connection
 from django.shortcuts import render, redirect
+
 import uuid
+
+from psycopg2 import Binary
 
 import cloudinary
 import cloudinary.uploader
@@ -30,6 +33,21 @@ def project_list(request):
             cursor.execute('SELECT ' +
                            ', '.join(['p.' + project_attr for project_attr in project_attrs]) +
                            ' FROM projects p INNER JOIN funding f ON p.pid = f.pid AND f.user_id = %s' % context['user_id'])
+            rows = cursor.fetchall()
+            projects = Helper.db_rows_to_dict(project_attrs, rows)
+            context['projects'] = projects
+    elif filtering == 'search':
+        search_input = request.POST.get('search', None)
+
+        if search_input is None:
+            return redirect('/')
+
+        with connection.cursor() as cursor:
+            project_attrs = ['title', 'description', 'target_fund', 'start_date', 'end_date', 'pid']
+            args = ('%' + search_input + '%', )  # Hidden dragon, crouching input sanitization.
+            cursor.execute('SELECT ' +
+                           ', '.join(['p.' + project_attr for project_attr in project_attrs]) +
+                           ' FROM projects p WHERE p.title ILIKE %s', args)
             rows = cursor.fetchall()
             projects = Helper.db_rows_to_dict(project_attrs, rows)
             context['projects'] = projects
@@ -353,3 +371,12 @@ def store_funding(request):
             connection.commit()
 
     return redirect('/projectDetails/?pid=%s' % pid)
+
+
+def search(request):
+    search_string = request.POST.get('search')
+    if search_string is None:
+        return redirect('/')
+
+    with connection.cursor() as cursor:
+        sql = 'SELECT '
