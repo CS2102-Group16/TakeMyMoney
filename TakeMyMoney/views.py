@@ -59,16 +59,23 @@ def project_list(request):
             categories = Helper.db_rows_to_dict(category_attrs, rows)
             context['categories'] = categories
 
-        project_attrs = ['title', 'description', 'target_fund', 'start_date', 'end_date', 'pid']
-        query_str = 'SELECT ' + ', '.join(project_attrs) + ' FROM projects'
+        project_attrs = ['title', 'description', 'target_fund', 'start_date', 'end_date', 'pid', 'category']
+        query_str = "SELECT p.title, p.description, p.target_fund, p.start_date, p.end_date, p.pid," \
+                    " string_agg(pc.category_name, ', ') FROM projects p" \
+                    " LEFT OUTER JOIN projects_categories pc ON p.pid = pc.pid" \
+                    " GROUP BY p.pid" \
+                    " ORDER BY p.pid ASC"
 
         if 'category' in request.GET:
             category_name = request.GET['category']
             if not category_name == 'All':
-                query_str = "SELECT p.title, p.description, p.target_fund, p.start_date, p.end_date, p.pid" \
-                            " FROM projects p" \
+                query_str = "SELECT p.title, p.description, p.target_fund, p.start_date, p.end_date, p.pid," \
+                            " string_agg(pc.category_name, ', ') FROM projects p" \
                             " INNER JOIN projects_categories pc ON p.pid = pc.pid" \
-                            " INNER JOIN categories c ON pc.category_name = c.name WHERE c.name = '%s'" % category_name
+                            " INNER JOIN categories c ON pc.category_name = c.name WHERE c.name = '%s'" \
+                            " GROUP BY p.pid" \
+                            " ORDER BY p.pid ASC" % category_name
+
         with connection.cursor() as cursor:
             cursor.execute(query_str)
             rows = cursor.fetchall()
@@ -84,6 +91,13 @@ def add_new_project(request):
     if 'user_id' not in context:
         return redirect('/')
 
+    with connection.cursor() as cursor:
+        category_attrs = ['name']
+        cursor.execute('SELECT ' + ', '.join(category_attrs) + ' FROM categories')
+        rows = cursor.fetchall()
+        categories = Helper.db_rows_to_dict(category_attrs, rows)
+        context['categories'] = categories
+
     return render(request, 'add_new_project.html', context=context)
 
 
@@ -94,7 +108,7 @@ def store_project(request):
     if 'user_id' not in context:
         redirect('/')
     if len(request.FILES) > 0:
-        upload_result = cloudinary.uploader.upload(request.FILES['photo'])
+       upload_result = cloudinary.uploader.upload(request.FILES['photo'])
 
     with connection.cursor() as cursor:
         #try:
@@ -113,6 +127,17 @@ def store_project(request):
 
             cursor.execute(sql, args)
             connection.commit()
+
+    with connection.cursor() as cursor:
+            category_list = request.POST.getlist('category')
+            cursor.execute('SELECT MAX(PID) FROM projects')
+            last_id = cursor.fetchone()
+            print last_id
+            for cat in category_list:
+                sql = "INSERT INTO projects_categories(category_name, pid) VALUES(%s, %s)"
+                args = (cat, last_id)
+                cursor.execute(sql, args)
+                connection.commit()
         # except Exception:
         #     return redirect('/addNewProject/')
 

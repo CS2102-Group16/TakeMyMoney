@@ -31,7 +31,21 @@
                 <label for="end_date">Funding Ends</label>
                 <input type="text" class="form-control" name="end_date" id="end_date" placeholder="Example input">
             </div>
-            <button type="submit" class="btn btn-primary pull-right">Submit</button>
+            <div class="form-group">
+                <label> Categories </label>
+                <div class="row">
+                    <div class="col-md-6">
+                    {% for category in categories %}
+                     <div class="checkbox">
+                       <label>
+                         <input type="checkbox" name="category" value="{{ category.name }}">{{ category.name }}
+                       </label>
+                     </div>
+                    {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary pull-right">Add Project</button>
         </form>
     </div>
 {% endblock %}
