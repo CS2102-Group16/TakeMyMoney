@@ -71,10 +71,15 @@ def project_list(request):
             if not category_name == 'All':
                 query_str = "SELECT p.title, p.description, p.target_fund, p.start_date, p.end_date, p.pid," \
                             " string_agg(pc.category_name, ', ') FROM projects p" \
-                            " INNER JOIN projects_categories pc ON p.pid = pc.pid" \
-                            " INNER JOIN categories c ON pc.category_name = c.name WHERE c.name = '%s'" \
+                            " NATURAL JOIN projects_categories pc" \
                             " GROUP BY p.pid" \
-                            " ORDER BY p.pid ASC" % category_name
+                            " EXCEPT" \
+                            " SELECT p2.title, p2.description, p2.target_fund, p2.start_date, p2.end_date, p2.pid," \
+                            " string_agg(pc2.category_name, ', ')" \
+                            " FROM projects p2" \
+                            " NATURAL JOIN projects_categories pc2" \
+                            " WHERE pc2.category_name <>'%s'" \
+                            " GROUP BY p2.pid" % category_name
 
         with connection.cursor() as cursor:
             cursor.execute(query_str)
@@ -161,6 +166,15 @@ def project_details(request):
         rows = cursor.fetchall()
         projects = Helper.db_rows_to_dict(project_attrs, rows)
         context['project'] = projects[0]
+
+    with connection.cursor() as cursor:
+        projects_categories_attrs = ['category_name']
+        sql = 'SELECT ' + ', '.join(projects_categories_attrs) + ' FROM projects_categories WHERE pid = %s'
+        args = (pid, )
+        cursor.execute(sql, args)
+        rows = cursor.fetchall()
+        project_categories = Helper.db_rows_to_dict(projects_categories_attrs, rows)
+        context['project_categories'] = project_categories
 
     with connection.cursor() as cursor:
         funding_attrs = ['pledger', 'amount']

@@ -28,18 +28,28 @@
         .bg-green {
             background-color: #2BDE73;
         }
+
+        a:link {
+            text-decoration: underline;
+        }
     </style>
 {% endblock %}
 
 {% block content %}
     <div class="container">
-        <div class="container">
+        <table class="container">
             <h1 class="text-center">{{ project.title }}</h1>
             <p class="text-center">{{ project.description }}</p>
             {% if project.photo_url %}
                 <img class="center-block" src="{{ project.photo_url }}"
                  alt="project.photo_url" id="project_img">
             {% endif %}
+            <div class>
+                <label>Category: </label>
+                {% for project_cate in project_categories %}
+                <a href="/projectList/?category={{ project_cate.category_name }}">{{ project_cate.category_name }}</a>
+                {% endfor %}
+            </div>
             {% if pledges %}
             <table class="table">
                 <thead>
