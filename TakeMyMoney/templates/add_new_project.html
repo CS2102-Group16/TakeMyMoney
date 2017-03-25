@@ -4,22 +4,12 @@
 
 {% block content %}
 
- <script src="js/jquery.js"></script>
-        <script>
-            $(document).ready(function(){
-                document.getElementById("title").value = localStorage.getItem("title");
-                document.getElementById("description").value = localStorage.getItem("description");
-                document.getElementById("target_fund").value = localStorage.getItem("target_fund");
-            });
-        </script>
-        <script>
-            $(window).on('beforeunload', function() {
-                localStorage.setItem("title",document.getElementById("title").value);
-                localStorage.setItem("description",document.getElementById("description").value);
-                localStorage.setItem("target_fund",document.getElementById("target_fund").value);
-            });
 
-        </script>
+ <script src="js/jquery.js"></script>
+
+{% load static %}
+<script type="text/javascript" src= "{% static '/date_validation.js' %}"></script>
+
 
     <div class="container">
         <h1>Add new project</h1>
@@ -44,15 +34,20 @@
 
             <div class="form-group">
                 <label for="start_date">Funding Start</label>
-                <input type="date" class="form-control" name="start_date" id="start_date">
+                <input type="date" class="form-control" name="start_date" id="start_date"
+                onchange="date_validation();">
             </div>
 
             <div class="form-group">
                 <label for="end_date">Funding End</label>
-                <input type="date" class="form-control" name="end_date" id="end_date">
+                <input type="date" class="form-control" name="end_date" id="end_date"
+                onchange="date_validation();">
             </div>
 
-            <button type="submit" class="btn btn-primary pull-right">Submit</button>
+            <div class="add-project-form-alert" id="date_checker" style="float:left;">
+            </div>
+
+            <button type="submit" id="submit" class="btn btn-primary pull-right">Submit</button>
 
         </form>
     </div>
