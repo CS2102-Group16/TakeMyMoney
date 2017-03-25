@@ -56,6 +56,22 @@
                 </tbody>
             </table>
             {% endif %}
+            {% if related %}
+            <table class="table">
+                <thead>
+                    <th>Title</th>
+                    <th>Description</th>
+                </thead>
+                <tbody>
+                {% for related_project in related %}
+                <tr>
+                    <td>{{ related_project.title }}</td>
+                    <td>{{ related_project.description }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
             <div class="project-footer">
                 <div class="pull-left">
                     <span><b>Target fund: {{ project.target_fund }}</b></span>

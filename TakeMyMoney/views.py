@@ -146,6 +146,24 @@ def project_details(request):
         pledges = Helper.db_rows_to_dict(funding_attrs, rows)
         context['pledges'] = pledges
 
+    with connection.cursor() as cursor:
+        related_project_attrs = ['title', 'description']
+        # The subquery selects the pids of projects that are not the current one (left
+        # side of the WHERE) and shares the same category as the current one.
+        sql = 'SELECT ' + ', '.join(['p.' + project_attr for project_attr in related_project_attrs]) + (
+              ' FROM projects p'
+              ' WHERE p.pid IN ('
+                ' SELECT pc1.pid'
+                ' FROM projects_categories pc1 INNER JOIN projects_categories pc2'
+                ' ON pc1.category_name = pc2.category_name'
+                ' WHERE pc1.pid <> %s AND pc2.pid = %s'
+              ' )')
+        args = (pid, pid)
+        cursor.execute(sql, args)
+        rows = cursor.fetchall()
+        related = Helper.db_rows_to_dict(related_project_attrs, rows)
+        context['related'] = related
+
     return render(request, 'project_details.html', context=context)
 
 
