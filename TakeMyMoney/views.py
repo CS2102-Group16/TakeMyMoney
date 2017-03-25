@@ -234,22 +234,6 @@ def login(request):
     return response
 
 
-# placeholder method
-def check_user(request):
-    return redirect('/')
-
-'''
-def check_user(request):
-    with connection.cursor() as cursor:
-        try:
-            cursor.execute(
-                "SELECT user_email, password FROM users"
-                "WHERE user_email = '%s'"
-                "AND password = '%s'"
-            )
-'''
-
-
 def add_new_user(request):
     return render(request,'add_new_user.html',context=None)
 
@@ -496,6 +480,7 @@ def make_admin(request):
     inject_user_data(request, context)
     user_id = request.GET.get('user_id', None)
 
+    # Only an admin can elevate others to admin status.
     if (user_id is None) or (context['role'] != 'admin'):
         return redirect('/')
 
@@ -512,6 +497,7 @@ def revoke_admin(request):
     context = dict()
     inject_user_data(request, context)
 
+    # An admin can only revoke his own admin status.
     if context['role'] != 'admin':
         return redirect('/')
 
