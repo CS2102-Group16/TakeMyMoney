@@ -185,8 +185,10 @@ def project_details(request):
         context['project'] = projects[0]
 
     with connection.cursor() as cursor:
-        funding_attrs = ['pledger', 'amount']
-        sql = 'SELECT u.name, f.amount FROM users u INNER JOIN funding f ON u.user_id = f.user_id AND f.pid = %s'
+        funding_attrs = ['pledger_name', 'pledger_id', 'amount']
+        sql = 'SELECT u.name, u.user_id, f.amount' \
+              ' FROM users u INNER JOIN funding f ON u.user_id = f.user_id' \
+              ' WHERE f.pid = %s'
         args = (pid, )
         cursor.execute(sql, args)
         rows = cursor.fetchall()

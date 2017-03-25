@@ -49,7 +49,7 @@
                 <tbody>
                 {% for pledge in pledges %}
                 <tr>
-                    <td>{{ pledge.pledger }}</td>
+                    <td><a href="/userDetails/?user_id={{ pledge.pledger_id }}">{{ pledge.pledger_name }}</a></td>
                     <td>${{ pledge.amount }}</td>
                 </tr>
                 {% endfor %}
