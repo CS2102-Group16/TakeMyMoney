@@ -193,10 +193,21 @@ def project_details(request):
 
 
 def login(request):
-    if 'session_id' in request.COOKIES:
-        return redirect('/')
+    response = render(request, 'login.html', context=None)
 
-    return render(request, 'login.html',context=None)
+    if 'session_id' in request.COOKIES:
+        with connection.cursor() as cursor:
+            sql = 'SELECT 1 FROM sessions WHERE session_id = %s'
+            args = (request.COOKIES['session_id'], )
+            cursor.execute(sql, args)
+            row = cursor.fetchone()
+            if row is not None:
+                return redirect('/')
+            else:
+                # session_id is in COOKIES, but it is an invalid one. So we delete it.
+                response.delete_cookie('session_id')
+
+    return response
 
 
 # placeholder method
