@@ -43,4 +43,8 @@ urlpatterns = [
 
     url(r'^addFunding/', views.add_funding),
     url(r'^storeFunding/', views.store_funding),
+
+    url(r'^userDetails/', views.user_details),
+    url(r'^makeAdmin/', views.make_admin),
+    url(r'^revokeAdmin/', views.revoke_admin),
 ]

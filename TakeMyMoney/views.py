@@ -4,13 +4,35 @@ from django.shortcuts import render, redirect
 
 import uuid
 
-from psycopg2 import Binary
-
 import cloudinary
 import cloudinary.uploader
 import cloudinary.api
 
 from helper import Helper
+
+
+def authorize_modify_project(context, target_pid):
+    """
+    Returns a boolean indicating whether the user is allowed to
+    modify (either update or delete) the target project, indicated
+    by its pid.
+    True - can modify
+    False - cannot modify
+    """
+
+    if 'user_id' not in context or 'role' not in context:
+        return False
+
+    if context['role'] is 'admin':
+        # Admins are authorized to do anything they want.
+        return True
+
+    with connection.cursor() as cursor:
+        sql = 'SELECT 1 FROM projects WHERE user_id = %s AND pid = %s'
+        args = (context['user_id'], target_pid)
+        cursor.execute(sql, args)
+        row = cursor.fetchone()
+        return row is not None
 
 
 def project_list(request):
@@ -179,36 +201,53 @@ def project_details(request):
     with connection.cursor() as cursor:
         funding_attrs = ['pledger', 'amount']
         sql = 'SELECT u.name, f.amount FROM users u INNER JOIN funding f ON u.user_id = f.user_id AND f.pid = %s'
+        funding_attrs = ['pledger_name', 'pledger_id', 'amount']
+        sql = 'SELECT u.name, u.user_id, f.amount' \
+              ' FROM users u INNER JOIN funding f ON u.user_id = f.user_id' \
+              ' WHERE f.pid = %s'
         args = (pid, )
         cursor.execute(sql, args)
         rows = cursor.fetchall()
         pledges = Helper.db_rows_to_dict(funding_attrs, rows)
         context['pledges'] = pledges
 
+    with connection.cursor() as cursor:
+        related_project_attrs = ['title', 'description']
+        # The subquery selects the pids of projects that are not the current one (left
+        # side of the WHERE) and shares the same category as the current one.
+        sql = 'SELECT ' + ', '.join(['p.' + project_attr for project_attr in related_project_attrs]) + (
+              ' FROM projects p'
+              ' WHERE p.pid IN ('
+                ' SELECT pc1.pid'
+                ' FROM projects_categories pc1 INNER JOIN projects_categories pc2'
+                ' ON pc1.category_name = pc2.category_name'
+                ' WHERE pc1.pid <> %s AND pc2.pid = %s'
+              ' )')
+        args = (pid, pid)
+        cursor.execute(sql, args)
+        rows = cursor.fetchall()
+        related = Helper.db_rows_to_dict(related_project_attrs, rows)
+        context['related'] = related
+
     return render(request, 'project_details.html', context=context)
 
 
 def login(request):
+    response = render(request, 'login.html', context=None)
+
     if 'session_id' in request.COOKIES:
-        return redirect('/')
+        with connection.cursor() as cursor:
+            sql = 'SELECT 1 FROM sessions WHERE session_id = %s'
+            args = (request.COOKIES['session_id'], )
+            cursor.execute(sql, args)
+            row = cursor.fetchone()
+            if row is not None:
+                return redirect('/')
+            else:
+                # session_id is in COOKIES, but it is an invalid one. So we delete it.
+                response.delete_cookie('session_id')
 
-    return render(request, 'login.html',context=None)
-
-
-# placeholder method
-def check_user(request):
-    return redirect('/')
-
-'''
-def check_user(request):
-    with connection.cursor() as cursor:
-        try:
-            cursor.execute(
-                "SELECT user_email, password FROM users"
-                "WHERE user_email = '%s'"
-                "AND password = '%s'"
-            )
-'''
+    return response
 
 
 def add_new_user(request):
@@ -301,8 +340,9 @@ def inject_user_data(request, context):
     session_id = request.COOKIES['session_id']
 
     with connection.cursor() as cursor:
-        user_attrs = ['user_email', 'user_id']
-        sql = 'SELECT u.user_email, u.user_id FROM users u NATURAL JOIN sessions s WHERE s.session_id = %s'
+        user_attrs = ['user_email', 'user_id', 'name', 'role']
+        sql = 'SELECT ' + ', '.join(['u.' + attr for attr in user_attrs]) + \
+              ' FROM users u NATURAL JOIN sessions s WHERE s.session_id = %s'
         args = (session_id, )
         cursor.execute(sql, args)
         rows = cursor.fetchall()
@@ -311,10 +351,10 @@ def inject_user_data(request, context):
     if len(users) == 0:
         return
 
-    user_email = users[0]['user_email']
-    user_id = users[0]['user_id']
-    context['user_email'] = user_email
-    context['user_id'] = user_id
+    context['user_email'] = users[0]['user_email']
+    context['user_id'] = users[0]['user_id']
+    context['role'] = users[0]['role']
+    context['user_name'] = users[0]['name']
 
 
 def edit_project(request):
@@ -348,7 +388,13 @@ def edit_project(request):
 
 
 def update_project(request):
-    pid = request.GET['pid']
+    context = dict()
+    inject_user_data(request, context)
+    pid = request.GET.get('pid', None)
+
+    if (pid is None) or not authorize_modify_project(context, pid):
+        return redirect('/')
+
     with connection.cursor() as cursor:
         sql = 'UPDATE projects SET title = %s, description = %s, target_fund = %s, start_date = %s, end_date = %s ' \
               'WHERE pid = %s'
@@ -382,7 +428,13 @@ def update_project(request):
 
 
 def delete_project(request):
-    pid = request.GET['pid']
+    context = dict()
+    inject_user_data(request, context)
+    pid = request.GET.get('pid', None)
+
+    if (pid is None) or not authorize_modify_project(context, pid):
+        return redirect('/')
+
     with connection.cursor() as cursor:
         #try:
             sql =  'DELETE FROM projects WHERE pid = %s'
@@ -448,10 +500,63 @@ def store_funding(request):
     return redirect('/projectDetails/?pid=%s' % pid)
 
 
-def search(request):
-    search_string = request.POST.get('search')
-    if search_string is None:
+def user_details(request):
+    context = dict()
+    inject_user_data(request, context)
+    user_id = request.GET.get('user_id', None)
+
+    if user_id is None:
         return redirect('/')
 
     with connection.cursor() as cursor:
-        sql = 'SELECT '
+        user_attrs = ['user_email', 'user_id', 'name', 'role']
+        sql = 'SELECT ' + ', '.join(user_attrs) + ' FROM users WHERE user_id = %s'
+        args = (user_id, )
+        cursor.execute(sql, args)
+        rows = cursor.fetchall()
+        if len(rows) < 1:
+            return redirect('/')
+        users = Helper.db_rows_to_dict(user_attrs, rows)
+        context['target_role'] = users[0]['role']
+        context['target_email'] = users[0]['user_email']
+        context['target_id'] = users[0]['user_id']
+        context['target_name'] = users[0]['name']
+
+    context['me'] = (str(user_id) == str(context['user_id']))
+
+    return render(request, 'user_details.html', context=context)
+
+
+def make_admin(request):
+    context = dict()
+    inject_user_data(request, context)
+    user_id = request.GET.get('user_id', None)
+
+    # Only an admin can elevate others to admin status.
+    if (user_id is None) or (context['role'] != 'admin'):
+        return redirect('/')
+
+    with connection.cursor() as cursor:
+        sql = 'UPDATE users SET role=\'admin\' WHERE user_id = %s'
+        args = (user_id, )
+        cursor.execute(sql, args)
+        connection.commit()
+
+    return redirect('/')
+
+
+def revoke_admin(request):
+    context = dict()
+    inject_user_data(request, context)
+
+    # An admin can only revoke his own admin status.
+    if context['role'] != 'admin':
+        return redirect('/')
+
+    with connection.cursor() as cursor:
+        sql = 'UPDATE users SET role=\'user\' WHERE user_id = %s'
+        args = (context['user_id'],)
+        cursor.execute(sql, args)
+        connection.commit()
+
+    return redirect('/')

@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Details of {{ user_name }}{% endblock %}
+
+{% block style %}
+    <style>
+        .detail-group {
+            margin-top: 10px;
+        }
+        .user-name {
+            display: inline;
+        }
+        .user-email {
+            margin-left: 5px;
+        }
+        {% if role == 'admin' %}
+        .manage-button {
+            margin-top: 10px;
+        }
+        {% endif %}
+    </style>
+{% endblock %}
+
+{% block content %}
+<p class="container">
+    <h1 class="user-name">{{ target_name }}</h1>
+    <span class="user-email" id="email">({{ target_email }})</span>
+    {% if role == 'admin' %}
+    <div class="detail-group">
+        <label for="role">User role</label>
+        <div id="role">{{ target_role }}</div>
+    </div>
+        {% if target_role != 'admin' %}
+        <a href="/makeAdmin/?user_id={{ target_id }}" class="btn btn-warning manage-button" role="button">Make Admin</a>
+        {% endif %}
+        {% if me %}
+        <a href="/revokeAdmin/" class="btn btn-warning manage-button" role="button">Revoke Admin</a>
+        {% endif %}
+    {% endif %}
+</div>
+{% endblock %}

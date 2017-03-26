@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Project details{% endblock %}
+{% block title %}{{ project.title }} - Take My Money{% endblock %}
 
 {% block style %}
     <style>
@@ -59,8 +59,24 @@
                 <tbody>
                 {% for pledge in pledges %}
                 <tr>
-                    <td>{{ pledge.pledger }}</td>
+                    <td><a href="/userDetails/?user_id={{ pledge.pledger_id }}">{{ pledge.pledger_name }}</a></td>
                     <td>${{ pledge.amount }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+            {% if related %}
+            <table class="table">
+                <thead>
+                    <th>Title</th>
+                    <th>Description</th>
+                </thead>
+                <tbody>
+                {% for related_project in related %}
+                <tr>
+                    <td>{{ related_project.title }}</td>
+                    <td>{{ related_project.description }}</td>
                 </tr>
                 {% endfor %}
                 </tbody>
