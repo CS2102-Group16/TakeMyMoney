@@ -17,7 +17,8 @@ CREATE TABLE projects(
 	end_date DATE NOT NULL,
 	target_fund INTEGER NOT NULL,
 	photo_url VARCHAR(1000),
-	user_id INTEGER REFERENCES users(user_id) NOT NULL
+	user_id INTEGER REFERENCES users(user_id) NOT NULL,
+	CONSTRAINT end_date CHECK (end_date > start_date)
 );
 
 CREATE TABLE categories(

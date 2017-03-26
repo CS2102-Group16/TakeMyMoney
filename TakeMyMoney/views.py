@@ -1,5 +1,5 @@
 from django.http import HttpResponse
-from django.db import connection
+from django.db import connection, IntegrityError
 from django.shortcuts import render, redirect
 import uuid
 
@@ -81,8 +81,7 @@ def store_project(request):
         upload_result = cloudinary.uploader.upload(request.FILES['photo'])
 
     with connection.cursor() as cursor:
-        #try:
-        # ugly copy-and-paste for now
+        try:
 
             start_date = datetime.datetime.strptime(request.POST['start_date'], "%Y-%m-%d")
             end_date = datetime.datetime.strptime(request.POST['end_date'], "%Y-%m-%d")
@@ -103,8 +102,8 @@ def store_project(request):
 
             cursor.execute(sql, args)
             connection.commit()
-        # except Exception:
-        #     return redirect('/addNewProject/')
+        except IntegrityError as e:
+            return redirect('/addNewProject/')
 
     return redirect('/')
 
