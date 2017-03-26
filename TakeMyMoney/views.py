@@ -329,6 +329,21 @@ def edit_project(request):
 
     context['title'], context['description'], context['target_fund'], context['start_date'], context['end_date'] = rows[0]
 
+    with connection.cursor() as cursor:
+        category_attrs = ['name']
+        cursor.execute('SELECT ' + ', '.join(category_attrs) + ' FROM categories')
+        rows = cursor.fetchall()
+        categories = Helper.db_rows_to_dict(category_attrs, rows)
+        context['categories'] = categories
+
+    with connection.cursor() as cursor:
+        projects_categories_attrs = ['name']
+        sql = 'SELECT category_name FROM projects_categories WHERE pid = %s' % context['pid']
+        cursor.execute(sql)
+        rows = cursor.fetchall()
+        projects_categories = Helper.db_rows_to_dict(projects_categories_attrs, rows)
+        context['projects_categories'] = projects_categories
+
     return render(request, 'edit_project.html', context=context)
 
 
@@ -338,9 +353,30 @@ def update_project(request):
         sql = 'UPDATE projects SET title = %s, description = %s, target_fund = %s, start_date = %s, end_date = %s ' \
               'WHERE pid = %s'
         args = (request.POST['title'], request.POST['description'], request.POST['target_fund'],
-               request.POST['start_date'], request.POST['end_date'], pid)
+                request.POST['start_date'], request.POST['end_date'], pid)
         cursor.execute(sql, args)
         connection.commit()
+
+    with connection.cursor() as cursor:
+        category_list = request.POST.getlist('category')
+        sql = 'SELECT category_name FROM projects_categories WHERE pid = %s' % pid
+        cursor.execute(sql)
+        rows = cursor.fetchall()
+        projects_categories = list(sum(rows, ()))
+
+        for cat in category_list:
+            if cat not in projects_categories:
+                sql = 'INSERT INTO projects_categories(category_name, pid) VALUES(%s, %s)'
+                args = (cat, pid)
+                cursor.execute(sql, args)
+                connection.commit()
+
+        for cat in projects_categories:
+            if cat not in category_list:
+                sql = 'DELETE FROM projects_categories WHERE category_name = %s AND pid = %s'
+                args = (cat, pid)
+                cursor.execute(sql, args)
+                connection.commit()
 
     return redirect('/')
 

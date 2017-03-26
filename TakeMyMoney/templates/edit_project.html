@@ -1,19 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Hello World</title>
-    <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
-    <!-- Latest compiled and minified CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+{% extends "base.html" %}
 
-    <!-- Optional theme -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+{% block title %}Take My Money{% endblock %}
 
-    <!-- Latest compiled and minified JavaScript -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-</head>
-<body>
+{% block content %}
     <div class="container">
         <h1>Edit project</h1>
         <form action="/updateProject/?pid={{ pid }}" method="POST">
@@ -38,8 +27,25 @@
                 <label for="end_date">Funding Ends</label>
                 <input type="text" class="form-control" name="end_date" id="end_date" placeholder="For example: 2017-9-30" value="{{ end_date }}">
             </div>
-            <button type="submit" class="btn btn-primary pull-right">Submit</button>
+            <div class="form-group">
+                <label> Categories </label>
+                <div class="row">
+                    <div class="col-md-6">
+                    {% for category in categories %}
+                     <div class="checkbox">
+                       <label>
+                         {% if category in projects_categories %}
+                         <input type="checkbox" name="category" value="{{ category.name }}" checked> {{ category.name }}
+                         {% else %}
+                         <input type="checkbox" name="category" value="{{ category.name }}"> {{ category.name }}
+                         {% endif %}
+                       </label>
+                     </div>
+                    {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary pull-right">Edit Project</button>
         </form>
     </div>
-</body>
-</html>
+{% endblock %}
