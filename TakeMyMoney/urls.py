@@ -46,4 +46,7 @@ urlpatterns = [
     url(r'^userDetails/', views.user_details),
     url(r'^makeAdmin/', views.make_admin),
     url(r'^revokeAdmin/', views.revoke_admin),
+
+    url(r'^projectsLog/', views.projects_log),
+    url(r'^roleLog/', views.role_log)
 ]

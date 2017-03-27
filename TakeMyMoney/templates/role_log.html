@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}Role Log{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <h1>User Role Log</h1>
+        <table class="table">
+            <thead>
+                <th>Transaction Time</th>
+                <th>User ID</th>
+                <th>Previous Role</th>
+                <th>New Role</th>
+            </thead>
+            <tbody>
+            {% for log in logs %}
+            <tr>
+                <td>{{ log.transaction_date|date:'r' }} </td>
+                <td><a href="/userDetails/?user_id={{ log.user_id }}">{{ log.user_id }}</a></td>
+                <td>{{ log.prev_role }}</td>
+                <td>{{ log.next_role }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

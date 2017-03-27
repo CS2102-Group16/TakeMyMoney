@@ -28,8 +28,7 @@
         .bg-green {
             background-color: #2BDE73;
         }
-
-        a:link {
+        .category {
             text-decoration: underline;
         }
     </style>
@@ -47,7 +46,7 @@
             <div class>
                 <label>Category: </label>
                 {% for project_cate in project_categories %}
-                <a href="/projectList/?category={{ project_cate.category_name }}">{{ project_cate.category_name }}</a>
+                <a class="category" href="/projectList/?category={{ project_cate.category_name }}">{{ project_cate.category_name }}</a>
                 {% endfor %}
             </div>
             {% if pledges %}

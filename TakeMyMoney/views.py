@@ -82,10 +82,11 @@ def project_list(request):
         with connection.cursor() as cursor:
             try:
                 project_attrs = ['title', 'description', 'target_fund', 'start_date', 'end_date', 'pid']
-                args = ('%' + search_input + '%', )  # Hidden dragon, crouching input sanitization.
+                # Hidden dragon, crouching input sanitization.
+                args = ('%' + search_input + '%', '%' + search_input + '%')
                 cursor.execute('SELECT ' +
                                ', '.join(['p.' + project_attr for project_attr in project_attrs]) +
-                               ' FROM projects p WHERE p.title ILIKE %s', args)
+                               ' FROM projects p WHERE p.title ILIKE %s OR p.description ILIKE %s', args)
                 rows = cursor.fetchall()
                 projects = Helper.db_rows_to_dict(project_attrs, rows)
                 context['projects'] = projects
@@ -232,6 +233,10 @@ def project_details(request):
             cursor.execute(sql, args)
             rows = cursor.fetchall()
             projects = Helper.db_rows_to_dict(project_attrs, rows)
+
+            if len(projects) < 1:
+                return redirect('/')
+
             context['project'] = projects[0]
         except Exception as e:
             print e
@@ -335,6 +340,9 @@ def store_user(request):
 def user_list(request):
     context = dict()
     inject_user_data(request, context)
+
+    if 'role' not in context or context['role'] != 'admin':
+        return redirect('/')
 
     with connection.cursor() as cursor:
         try:
@@ -689,7 +697,7 @@ def revoke_admin(request):
     inject_user_data(request, context)
 
     # An admin can only revoke his own admin status.
-    if context['role'] != 'admin':
+    if 'role' not in context or context['role'] != 'admin':
         return redirect('/')
 
     with connection.cursor() as cursor:
@@ -703,3 +711,42 @@ def revoke_admin(request):
             return redirect('/')
 
     return redirect('/')
+
+
+def projects_log(request):
+    context = dict()
+    inject_user_data(request, context)
+
+    if 'role' not in context or context['role'] != 'admin':
+        return redirect('/')
+
+    with connection.cursor() as cursor:
+        log_args = ['pid', 'operation',
+                    'prev_title', 'prev_description', 'prev_start_date', 'prev_end_date', 'prev_target_fund', 'prev_photo_url',
+                    'next_title', 'next_description', 'next_start_date', 'next_end_date', 'next_target_fund', 'next_photo_url',
+                    'transaction_date']
+        sql = 'SELECT ' + ', '.join(log_args) + ' FROM projects_log ORDER BY transaction_date DESC'
+        cursor.execute(sql)
+        rows = cursor.fetchall()
+        logs = Helper.db_rows_to_dict(log_args, rows)
+        context['logs'] = logs
+
+    return render(request, "projects_log.html", context=context)
+
+
+def role_log(request):
+    context = dict()
+    inject_user_data(request, context)
+
+    if 'role' not in context or context['role'] != 'admin':
+        return redirect('/')
+
+    with connection.cursor() as cursor:
+        log_args = ['user_id', 'prev_role', 'next_role', 'transaction_date']
+        sql = 'SELECT ' + ', '.join(log_args) + ' FROM role_log ORDER BY transaction_date DESC'
+        cursor.execute(sql)
+        rows = cursor.fetchall()
+        logs = Helper.db_rows_to_dict(log_args, rows)
+        context['logs'] = logs
+
+    return render(request, "role_log.html", context=context)
