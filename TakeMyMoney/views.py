@@ -76,7 +76,7 @@ def project_list(request):
     else:
         with connection.cursor() as cursor:
             category_attrs = ['name']
-            cursor.execute('SELECT ' + ', '.join(category_attrs) + ' FROM categories')
+            cursor.execute("SELECT " + ", ".join(category_attrs) + " FROM categories")
             rows = cursor.fetchall()
             categories = Helper.db_rows_to_dict(category_attrs, rows)
             context['categories'] = categories
