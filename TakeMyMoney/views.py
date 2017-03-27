@@ -17,47 +17,51 @@ def project_list(request):
     inject_user_data(request, context)
     filtering = request.GET.get('filter', None)
 
-    if filtering == 'owned':
-        with connection.cursor() as cursor:
-            project_attrs = ['title', 'description', 'target_fund', 'start_date', 'end_date', 'pid']
-            cursor.execute('SELECT ' +
-                           ', '.join(['p.' + project_attr for project_attr in project_attrs]) +
-                           ' FROM projects p WHERE p.user_id = %s' % context['user_id'])
-            rows = cursor.fetchall()
-            projects = Helper.db_rows_to_dict(project_attrs, rows)
-            context['projects'] = projects
-    elif filtering == 'pledged':
-        with connection.cursor() as cursor:
-            project_attrs = ['title', 'description', 'target_fund', 'start_date', 'end_date', 'pid']
-            cursor.execute('SELECT ' +
-                           ', '.join(['p.' + project_attr for project_attr in project_attrs]) +
-                           ' FROM projects p INNER JOIN funding f ON p.pid = f.pid AND f.user_id = %s' % context['user_id'])
-            rows = cursor.fetchall()
-            projects = Helper.db_rows_to_dict(project_attrs, rows)
-            context['projects'] = projects
-    else:
-        with connection.cursor() as cursor:
-            category_attrs = ['name']
-            cursor.execute('SELECT ' + ', '.join(category_attrs) + ' FROM categories')
-            rows = cursor.fetchall()
-            categories = Helper.db_rows_to_dict(category_attrs, rows)
-            context['categories'] = categories
+    try:
+        if filtering == 'owned':
+            with connection.cursor() as cursor:
+                project_attrs = ['title', 'description', 'target_fund', 'start_date', 'end_date', 'pid']
+                cursor.execute('SELECT ' +
+                               ', '.join(['p.' + project_attr for project_attr in project_attrs]) +
+                               ' FROM projects p WHERE p.user_id = %s' % context['user_id'])
+                rows = cursor.fetchall()
+                projects = Helper.db_rows_to_dict(project_attrs, rows)
+                context['projects'] = projects
+        elif filtering == 'pledged':
+            with connection.cursor() as cursor:
+                project_attrs = ['title', 'description', 'target_fund', 'start_date', 'end_date', 'pid']
+                cursor.execute('SELECT ' +
+                               ', '.join(['p.' + project_attr for project_attr in project_attrs]) +
+                               ' FROM projects p INNER JOIN funding f ON p.pid = f.pid AND f.user_id = %s' % context['user_id'])
+                rows = cursor.fetchall()
+                projects = Helper.db_rows_to_dict(project_attrs, rows)
+                context['projects'] = projects
+        else:
+            with connection.cursor() as cursor:
+                category_attrs = ['name']
+                cursor.execute('SELECT ' + ', '.join(category_attrs) + ' FROM categories')
+                rows = cursor.fetchall()
+                categories = Helper.db_rows_to_dict(category_attrs, rows)
+                context['categories'] = categories
 
-        project_attrs = ['title', 'description', 'target_fund', 'start_date', 'end_date', 'pid']
-        query_str = 'SELECT ' + ', '.join(project_attrs) + ' FROM projects'
+            project_attrs = ['title', 'description', 'target_fund', 'start_date', 'end_date', 'pid']
+            query_str = 'SELECT ' + ', '.join(project_attrs) + ' FROM projects'
 
-        if 'category' in request.GET:
-            category_name = request.GET['category']
-            if not category_name == 'All':
-                query_str = "SELECT p.title, p.description, p.target_fund, p.start_date, p.end_date, p.pid" \
-                            " FROM projects p" \
-                            " INNER JOIN projects_categories pc ON p.pid = pc.pid" \
-                            " INNER JOIN categories c ON pc.category_name = c.name WHERE c.name = '%s'" % category_name
-        with connection.cursor() as cursor:
-            cursor.execute(query_str)
-            rows = cursor.fetchall()
-            projects = Helper.db_rows_to_dict(project_attrs, rows)
-            context['projects'] = projects
+            if 'category' in request.GET:
+                category_name = request.GET['category']
+                if not category_name == 'All':
+                    query_str = "SELECT p.title, p.description, p.target_fund, p.start_date, p.end_date, p.pid" \
+                                " FROM projects p" \
+                                " INNER JOIN projects_categories pc ON p.pid = pc.pid" \
+                                " INNER JOIN categories c ON pc.category_name = c.name WHERE c.name = '%s'" % category_name
+            with connection.cursor() as cursor:
+                cursor.execute(query_str)
+                rows = cursor.fetchall()
+                projects = Helper.db_rows_to_dict(project_attrs, rows)
+                context['projects'] = projects
+    except Exception as e:
+        print e
+        return redirect('/projectList/')
 
     return render(request, 'project_list.html', context=context)
 
@@ -103,6 +107,7 @@ def store_project(request):
             cursor.execute(sql, args)
             connection.commit()
         except IntegrityError as e:
+            print e
             return redirect('/addNewProject/')
 
     return redirect('/')
@@ -117,23 +122,28 @@ def project_details(request):
     inject_user_data(request, context)
     pid = request.GET['pid']
 
-    with connection.cursor() as cursor:
-        project_attrs = ['title', 'description', 'target_fund', 'photo_url', 'start_date', 'end_date', 'pid']
-        sql = 'SELECT ' + ', '.join(project_attrs) + ' FROM projects WHERE pid = %s'
-        args = (pid, )
-        cursor.execute(sql, args)
-        rows = cursor.fetchall()
-        projects = Helper.db_rows_to_dict(project_attrs, rows)
-        context['project'] = projects[0]
+    try:
+        with connection.cursor() as cursor:
+            project_attrs = ['title', 'description', 'target_fund', 'photo_url', 'start_date', 'end_date', 'pid']
+            sql = 'SELECT ' + ', '.join(project_attrs) + ' FROM projects WHERE pid = %s'
+            args = (pid, )
+            cursor.execute(sql, args)
+            rows = cursor.fetchall()
+            projects = Helper.db_rows_to_dict(project_attrs, rows)
+            context['project'] = projects[0]
 
-    with connection.cursor() as cursor:
-        funding_attrs = ['pledger', 'amount']
-        sql = 'SELECT u.name, f.amount FROM users u INNER JOIN funding f ON u.user_id = f.user_id AND f.pid = %s'
-        args = (pid, )
-        cursor.execute(sql, args)
-        rows = cursor.fetchall()
-        pledges = Helper.db_rows_to_dict(funding_attrs, rows)
-        context['pledges'] = pledges
+        with connection.cursor() as cursor:
+            funding_attrs = ['pledger', 'amount']
+            sql = 'SELECT u.name, f.amount FROM users u INNER JOIN funding f ON u.user_id = f.user_id AND f.pid = %s'
+            args = (pid, )
+            cursor.execute(sql, args)
+            rows = cursor.fetchall()
+            pledges = Helper.db_rows_to_dict(funding_attrs, rows)
+            context['pledges'] = pledges
+
+    except Exception as e:
+        print e
+        return redirect('/projectDetails/')
 
     return render(request, 'project_details.html', context=context)
 
@@ -167,13 +177,14 @@ def add_new_user(request):
 
 def store_user(request):
     with connection.cursor() as cursor:
-        #try:
+        try:
             sql = 'INSERT INTO users(user_email, password, name, role) VALUES (%s, %s, %s, \'user\')'
             args = (request.POST['user_email'], request.POST['password'], request.POST['name'])
             cursor.execute(sql, args)
             connection.commit()
-        # except Exception:
-        #     return redirect('/userList/')
+        except Exception as e:
+            print e
+            return redirect('/userList/')
 
     return redirect('/userList/')
 
@@ -182,12 +193,16 @@ def user_list(request):
     context = dict()
     inject_user_data(request, context)
 
-    with connection.cursor() as cursor:
-        user_attrs = ['user_email', 'user_id', 'role']
-        cursor.execute('SELECT ' + ', '.join(user_attrs) + ' FROM users')
-        rows = cursor.fetchall()
-        users = Helper.db_rows_to_dict(user_attrs, rows)
-        context['users'] = users
+    try:
+        with connection.cursor() as cursor:
+            user_attrs = ['user_email', 'user_id', 'role']
+            cursor.execute('SELECT ' + ', '.join(user_attrs) + ' FROM users')
+            rows = cursor.fetchall()
+            users = Helper.db_rows_to_dict(user_attrs, rows)
+            context['users'] = users
+    except Exception as e:
+        print e
+        return redirect('/userList/')
 
     return render(request, 'user_list.html', context=context)
 
@@ -199,11 +214,16 @@ def attempt_login(request):
     # Validate login credentials
     if 'user_email' not in request.POST or 'password' not in request.POST:
         return redirect('/')
-    with connection.cursor() as cursor:
-        sql = 'SELECT user_id, password FROM users WHERE user_email = %s'
-        args = (request.POST['user_email'], )
-        cursor.execute(sql, args)
-        rows = cursor.fetchall()
+    try:
+        with connection.cursor() as cursor:
+            sql = 'SELECT user_id, password FROM users WHERE user_email = %s'
+            args = (request.POST['user_email'], )
+            cursor.execute(sql, args)
+            rows = cursor.fetchall()
+    except Exception as e:
+        print e
+        return redirect('/')
+
     if len(rows) == 0:
         return redirect('/')
 
@@ -214,13 +234,17 @@ def attempt_login(request):
     # Construct new session
     session_id = uuid.uuid4()
 
-    with connection.cursor() as cursor:
-        cursor.execute(
-            "INSERT INTO sessions (session_id, user_id) VALUES ('%s', %s)"
-            % (session_id,
-               user_id)
-        )
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute(
+                "INSERT INTO sessions (session_id, user_id) VALUES ('%s', %s)"
+                % (session_id,
+                   user_id)
+            )
         connection.commit()
+    except Exception as e:
+        print e
+        return redirect('/')
 
     response = redirect('/')
     response.set_cookie('session_id', session_id)
@@ -233,11 +257,15 @@ def logout(request):
 
     session_id = request.COOKIES['session_id']
 
-    with connection.cursor() as cursor:
-        sql = 'DELETE FROM sessions WHERE session_id = %s'
-        args = (session_id, )
-        cursor.execute(sql, args)
-        connection.commit()
+    try:
+        with connection.cursor() as cursor:
+            sql = 'DELETE FROM sessions WHERE session_id = %s'
+            args = (session_id, )
+            cursor.execute(sql, args)
+            connection.commit()
+    except Exception as e:
+        print e
+        return redirect('/')
 
     response = redirect('/')
     response.delete_cookie('session_id')
@@ -250,13 +278,17 @@ def inject_user_data(request, context):
 
     session_id = request.COOKIES['session_id']
 
-    with connection.cursor() as cursor:
-        user_attrs = ['user_email', 'user_id']
-        sql = 'SELECT u.user_email, u.user_id FROM users u NATURAL JOIN sessions s WHERE s.session_id = %s'
-        args = (session_id, )
-        cursor.execute(sql, args)
-        rows = cursor.fetchall()
-        users = Helper.db_rows_to_dict(user_attrs, rows)
+    try:
+        with connection.cursor() as cursor:
+            user_attrs = ['user_email', 'user_id']
+            sql = 'SELECT u.user_email, u.user_id FROM users u NATURAL JOIN sessions s WHERE s.session_id = %s'
+            args = (session_id, )
+            cursor.execute(sql, args)
+            rows = cursor.fetchall()
+            users = Helper.db_rows_to_dict(user_attrs, rows)
+    except Exception as e:
+        print e
+        return redirect('/')
 
     if len(users) == 0:
         return
@@ -271,11 +303,15 @@ def edit_project(request):
     context = dict()
     context['pid'] = request.GET['pid']
 
-    with connection.cursor() as cursor:
-        sql = 'SELECT title, description, target_fund, start_date, end_date FROM projects WHERE pid = %s'
-        args = (context['pid'], )
-        cursor.execute(sql, args)
-        rows = cursor.fetchall()
+    try:
+        with connection.cursor() as cursor:
+            sql = 'SELECT title, description, target_fund, start_date, end_date FROM projects WHERE pid = %s'
+            args = (context['pid'], )
+            cursor.execute(sql, args)
+            rows = cursor.fetchall()
+    except Exception as e:
+        print e
+        return redirect('/editProject/')
 
     context['title'], context['description'], context['target_fund'], context['start_date'], context['end_date'] = rows[0]
 
@@ -284,13 +320,17 @@ def edit_project(request):
 
 def update_project(request):
     pid = request.GET['pid']
-    with connection.cursor() as cursor:
-        sql = 'UPDATE projects SET title = %s, description = %s, target_fund = %s, start_date = %s, end_date = %s ' \
-              'WHERE pid = %s'
-        args = (request.POST['title'], request.POST['description'], request.POST['target_fund'],
-               request.POST['start_date'], request.POST['end_date'], pid)
-        cursor.execute(sql, args)
-        connection.commit()
+    try:
+        with connection.cursor() as cursor:
+            sql = 'UPDATE projects SET title = %s, description = %s, target_fund = %s, start_date = %s, end_date = %s ' \
+                  'WHERE pid = %s'
+            args = (request.POST['title'], request.POST['description'], request.POST['target_fund'],
+                   request.POST['start_date'], request.POST['end_date'], pid)
+            cursor.execute(sql, args)
+            connection.commit()
+    except IntegrityError as e:
+        print e
+        return redirect('/')
 
     return redirect('/')
 
