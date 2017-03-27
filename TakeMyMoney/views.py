@@ -407,9 +407,6 @@ def logout(request):
             connection.commit()
         except Exception as e:
             print e
-            response = redirect('/')
-            response.delete_cookie('session_id')
-            return response
 
     response = redirect('/')
     response.delete_cookie('session_id')
