@@ -162,6 +162,32 @@ ON projects
 FOR EACH ROW
 EXECUTE PROCEDURE projectslog();
 
+CREATE OR REPLACE FUNCTION examine_user_change() RETURNS TRIGGER AS $$
+    DECLARE admin_count INTEGER;
+
+    BEGIN
+    SELECT COUNT(*) INTO admin_count FROM users WHERE role = 'admin';
+
+    IF (admin_count < 2 AND OLD.role = 'admin') THEN
+        RAISE EXCEPTION 'System must always have at least one admin.';
+    END IF;
+
+    IF TG_OP = 'DELETE' THEN
+        /* We cannot return NULL because that will prevent the operation from occurring.
+           Instead, the idiomatic way is to RETURN OLD. */
+        RETURN OLD;
+    END IF;
+
+    RETURN NEW;
+    END;
+$$ LANGUAGE PLPGSQL;
+
+CREATE TRIGGER examine_user_change
+BEFORE UPDATE OR DELETE
+ON users
+FOR EACH ROW
+EXECUTE PROCEDURE examine_user_change();
+
 CREATE OR REPLACE FUNCTION rolelog() RETURNS TRIGGER AS $$
     BEGIN
     INSERT INTO role_log(user_id, prev_role, next_role, transaction_date) VALUES (
