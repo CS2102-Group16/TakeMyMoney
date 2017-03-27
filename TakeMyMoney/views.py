@@ -275,6 +275,9 @@ def user_list(request):
     context = dict()
     inject_user_data(request, context)
 
+    if 'role' not in context or context['role'] != 'admin':
+        return redirect('/')
+
     with connection.cursor() as cursor:
         user_attrs = ['user_email', 'user_id', 'role']
         cursor.execute('SELECT ' + ', '.join(user_attrs) + ' FROM users')
