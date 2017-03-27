@@ -172,7 +172,6 @@ def store_project(request):
 
     with connection.cursor() as cursor:
         try:
-
             start_date = datetime.datetime.strptime(request.POST['start_date'], "%Y-%m-%d")
             end_date = datetime.datetime.strptime(request.POST['end_date'], "%Y-%m-%d")
 
@@ -201,7 +200,6 @@ def store_project(request):
             category_list = request.POST.getlist('category')
             cursor.execute('SELECT MAX(PID) FROM projects')
             last_id = cursor.fetchone()
-            print last_id
             for cat in category_list:
                 sql = "INSERT INTO projects_categories(category_name, pid) VALUES(%s, %s)"
                 args = (cat, last_id)
@@ -211,9 +209,7 @@ def store_project(request):
             print e
             return redirect('/addNewProject/')
 
-        return redirect('/addNewProject/')
-
-    return redirect('/')
+    return redirect('/addNewProject/')
 
 
 def search_project(request):
@@ -545,7 +541,7 @@ def update_project(request):
                     print e
                     return redirect('/')
 
-    return redirect('/')
+    return redirect('/projectDetails/?pid=%s' % pid)
 
 
 def delete_project(request):
@@ -689,7 +685,7 @@ def make_admin(request):
             print e
             return redirect('/')
 
-    return redirect('/')
+    return redirect('/userDetails/?user_id=%s' % user_id)
 
 
 def revoke_admin(request):
@@ -710,7 +706,7 @@ def revoke_admin(request):
             print e
             return redirect('/')
 
-    return redirect('/')
+    return redirect('/userDetails/?user_id=%s' % context['user_id'])
 
 
 def projects_log(request):
