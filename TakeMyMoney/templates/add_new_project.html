@@ -3,14 +3,6 @@
 {% block title %}Add new project{% endblock %}
 
 {% block content %}
-
-
- <script src="js/jquery.js"></script>
-
-{% load static %}
-<script type="text/javascript" src= "{% static '/date_validation.js' %}"></script>
-
-
     <div class="container">
         <h1>Add new project</h1>
         <form action="/storeProject/" method="POST" enctype="multipart/form-data">
@@ -31,24 +23,29 @@
                 <label for="target_fund">Target Fund</label>
                 <input type="text" class="form-control" name="target_fund" id="target_fund" placeholder="Example input">
             </div>
-
             <div class="form-group">
                 <label for="start_date">Funding Start</label>
-                <input type="date" class="form-control" name="start_date" id="start_date"
-                onchange="date_validation();">
+                <input type="text" class="form-control" name="start_date" id="start_date" placeholder="Example input">
             </div>
-
             <div class="form-group">
-                <label for="end_date">Funding End</label>
-                <input type="date" class="form-control" name="end_date" id="end_date"
-                onchange="date_validation();">
+                <label for="end_date">Funding Ends</label>
+                <input type="text" class="form-control" name="end_date" id="end_date" placeholder="Example input">
             </div>
-
-            <div class="add-project-form-alert" id="date_checker" style="float:left;">
+            <div class="form-group">
+                <label> Categories </label>
+                <div class="row">
+                    <div class="col-md-6">
+                    {% for category in categories %}
+                     <div class="checkbox">
+                       <label>
+                         <input type="checkbox" name="category" value="{{ category.name }}">{{ category.name }}
+                       </label>
+                     </div>
+                    {% endfor %}
+                    </div>
+                </div>
             </div>
-
-            <button type="submit" id="submit" class="btn btn-primary pull-right">Submit</button>
-
+            <button type="submit" class="btn btn-primary pull-right">Add Project</button>
         </form>
     </div>
 {% endblock %}

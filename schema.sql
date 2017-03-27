@@ -29,6 +29,7 @@ CREATE TABLE categories(
 CREATE TABLE projects_categories(
     category_name VARCHAR(100) NOT NULL,
     pid INTEGER NOT NULL,
+    PRIMARY KEY (category_name, pid),
     FOREIGN KEY (pid) REFERENCES projects(pid),
     FOREIGN KEY (category_name) REFERENCES categories(name)
 );

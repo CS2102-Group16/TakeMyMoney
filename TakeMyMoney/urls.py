@@ -33,7 +33,6 @@ urlpatterns = [
     url(r'^deleteProject/', views.delete_project),
 
     url(r'^login/', views.login),
-    url(r'^checkUser/', views.check_user),
 
     url(r'^signUp/', views.add_new_user),
     url(r'^storeUser/', views.store_user),
@@ -41,7 +40,10 @@ urlpatterns = [
     url(r'^attemptLogin/', views.attempt_login),
     url(r'^signOut/', views.logout),
 
-
     url(r'^addFunding/', views.add_funding),
     url(r'^storeFunding/', views.store_funding),
+
+    url(r'^userDetails/', views.user_details),
+    url(r'^makeAdmin/', views.make_admin),
+    url(r'^revokeAdmin/', views.revoke_admin),
 ]

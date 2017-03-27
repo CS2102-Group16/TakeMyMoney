@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block title %}Project details{% endblock %}
+{% block title %}{{ project.title }} - Take My Money{% endblock %}
 
 {% block style %}
     <style>
@@ -28,18 +28,28 @@
         .bg-green {
             background-color: #2BDE73;
         }
+
+        a:link {
+            text-decoration: underline;
+        }
     </style>
 {% endblock %}
 
 {% block content %}
     <div class="container">
-        <div class="container">
+        <table class="container">
             <h1 class="text-center">{{ project.title }}</h1>
             <p class="text-center">{{ project.description }}</p>
             {% if project.photo_url %}
                 <img class="center-block" src="{{ project.photo_url }}"
                  alt="project.photo_url" id="project_img">
             {% endif %}
+            <div class>
+                <label>Category: </label>
+                {% for project_cate in project_categories %}
+                <a href="/projectList/?category={{ project_cate.category_name }}">{{ project_cate.category_name }}</a>
+                {% endfor %}
+            </div>
             {% if pledges %}
             <table class="table">
                 <thead>
@@ -49,8 +59,24 @@
                 <tbody>
                 {% for pledge in pledges %}
                 <tr>
-                    <td>{{ pledge.pledger }}</td>
+                    <td><a href="/userDetails/?user_id={{ pledge.pledger_id }}">{{ pledge.pledger_name }}</a></td>
                     <td>${{ pledge.amount }}</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+            {% endif %}
+            {% if related %}
+            <table class="table">
+                <thead>
+                    <th>Title</th>
+                    <th>Description</th>
+                </thead>
+                <tbody>
+                {% for related_project in related %}
+                <tr>
+                    <td>{{ related_project.title }}</td>
+                    <td>{{ related_project.description }}</td>
                 </tr>
                 {% endfor %}
                 </tbody>
