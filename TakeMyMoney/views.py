@@ -182,6 +182,10 @@ def project_details(request):
         cursor.execute(sql, args)
         rows = cursor.fetchall()
         projects = Helper.db_rows_to_dict(project_attrs, rows)
+
+        if len(projects) < 1:
+            return redirect('/')
+
         context['project'] = projects[0]
 
     with connection.cursor() as cursor:
