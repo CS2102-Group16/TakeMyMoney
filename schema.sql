@@ -27,8 +27,9 @@ CREATE TABLE categories(
 CREATE TABLE projects_categories(
     category_name VARCHAR(100) NOT NULL,
     pid INTEGER NOT NULL,
-    FOREIGN KEY (pid) REFERENCES projects(pid),
-    FOREIGN KEY (category_name) REFERENCES categories(name)
+    PRIMARY KEY (category_name, pid),
+    FOREIGN KEY (pid) REFERENCES projects(pid) ON UPDATE CASCADE ON DELETE CASCADE,
+    FOREIGN KEY (category_name) REFERENCES categories(name) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 CREATE TABLE sessions(

@@ -28,6 +28,9 @@
         .bg-green {
             background-color: #2BDE73;
         }
+        .category {
+            text-decoration: underline;
+        }
     </style>
 {% endblock %}
 
@@ -40,6 +43,12 @@
                 <img class="center-block" src="{{ project.photo_url }}"
                  alt="project.photo_url" id="project_img">
             {% endif %}
+            <div class>
+                <label>Category: </label>
+                {% for project_cate in project_categories %}
+                <a class="category" href="/projectList/?category={{ project_cate.category_name }}">{{ project_cate.category_name }}</a>
+                {% endfor %}
+            </div>
             {% if pledges %}
             <table class="table">
                 <thead>
