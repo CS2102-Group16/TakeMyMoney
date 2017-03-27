@@ -7,7 +7,7 @@ CREATE TABLE users(
     user_email VARCHAR(100) UNIQUE NOT NULL,
     password VARCHAR(15) NOT NULL,
     role VARCHAR(10) NOT NULL DEFAULT 'user',
-    CONSTRAINT role CHECK (role = 'user' OR role = 'admin')
+    CONSTRAINT role_types CHECK (role = 'user' OR role = 'admin')
 );
 
 CREATE TABLE projects(
