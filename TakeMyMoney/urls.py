@@ -33,7 +33,6 @@ urlpatterns = [
     url(r'^deleteProject/', views.delete_project),
 
     url(r'^login/', views.login),
-    url(r'^checkUser/', views.check_user),
 
     url(r'^signUp/', views.add_new_user),
     url(r'^storeUser/', views.store_user),
