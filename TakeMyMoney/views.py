@@ -584,7 +584,6 @@ def projects_log(request):
         rows = cursor.fetchall()
         logs = Helper.db_rows_to_dict(log_args, rows)
         context['logs'] = logs
-        print context['logs']
 
     return render(request, "projects_log.html", context=context)
 
