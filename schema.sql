@@ -75,11 +75,12 @@ CREATE TABLE projects_log(
     CONSTRAINT pk_projects_log PRIMARY KEY (pid, transaction_date)
 );
 
-CREATE TABLE users_log(
-    user_id INTEGER PRIMARY KEY,
+CREATE TABLE role_log(
+    user_id INTEGER NOT NULL,
     prev_role VARCHAR(10) NOT NULL,
     next_role VARCHAR(10) NOT NULL,
-    transaction_date DATE NOT NULL
+    transaction_date TIMESTAMP WITH TIME ZONE NOT NULL,
+    CONSTRAINT pk_role_log PRIMARY KEY (user_id, transaction_date)
 );
 
 CREATE OR REPLACE FUNCTION projectslog() RETURNS TRIGGER AS $$
@@ -160,3 +161,18 @@ AFTER INSERT OR UPDATE OR DELETE
 ON projects
 FOR EACH ROW
 EXECUTE PROCEDURE projectslog();
+
+CREATE OR REPLACE FUNCTION rolelog() RETURNS TRIGGER AS $$
+    BEGIN
+    INSERT INTO role_log(user_id, prev_role, next_role, transaction_date) VALUES (
+        OLD.user_id, OLD.role, NEW.role, (SELECT CURRENT_TIMESTAMP)
+    );
+    RETURN NULL;
+    END;
+$$ LANGUAGE PLPGSQL;
+
+CREATE TRIGGER rolelog
+AFTER UPDATE
+ON users
+FOR EACH ROW
+EXECUTE PROCEDURE rolelog();

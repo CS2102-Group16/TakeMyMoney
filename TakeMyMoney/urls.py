@@ -48,4 +48,5 @@ urlpatterns = [
     url(r'^revokeAdmin/', views.revoke_admin),
 
     url(r'^projectsLog/', views.projects_log),
+    url(r'^roleLog/', views.role_log)
 ]

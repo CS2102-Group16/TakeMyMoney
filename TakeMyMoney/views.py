@@ -587,3 +587,21 @@ def projects_log(request):
         print context['logs']
 
     return render(request, "projects_log.html", context=context)
+
+
+def role_log(request):
+    context = dict()
+    inject_user_data(request, context)
+
+    if 'role' not in context or context['role'] != 'admin':
+        return redirect('/')
+
+    with connection.cursor() as cursor:
+        log_args = ['user_id', 'prev_role', 'next_role', 'transaction_date']
+        sql = 'SELECT ' + ', '.join(log_args) + ' FROM role_log ORDER BY transaction_date DESC'
+        cursor.execute(sql)
+        rows = cursor.fetchall()
+        logs = Helper.db_rows_to_dict(log_args, rows)
+        context['logs'] = logs
+
+    return render(request, "role_log.html", context=context)
