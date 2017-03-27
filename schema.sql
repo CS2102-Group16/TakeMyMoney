@@ -168,8 +168,8 @@ CREATE OR REPLACE FUNCTION examine_user_change() RETURNS TRIGGER AS $$
     BEGIN
     SELECT COUNT(*) INTO admin_count FROM users WHERE role = 'admin';
 
-    IF (admin_count < 2 AND OLD.role = 'admin') THEN
-        RAISE EXCEPTION 'System must always have at least one admin.';
+    IF admin_count < 1 THEN
+        RAISE EXCEPTION 'System must always have at least one admin.';  -- This rolls back the transaction.
     END IF;
 
     IF TG_OP = 'DELETE' THEN
@@ -183,9 +183,9 @@ CREATE OR REPLACE FUNCTION examine_user_change() RETURNS TRIGGER AS $$
 $$ LANGUAGE PLPGSQL;
 
 CREATE TRIGGER examine_user_change
-BEFORE UPDATE OR DELETE
+AFTER UPDATE OR DELETE
 ON users
-FOR EACH ROW
+FOR EACH STATEMENT
 EXECUTE PROCEDURE examine_user_change();
 
 CREATE OR REPLACE FUNCTION rolelog() RETURNS TRIGGER AS $$
