@@ -82,7 +82,8 @@ CREATE TABLE role_log(
     prev_role VARCHAR(10) NOT NULL,
     next_role VARCHAR(10) NOT NULL,
     transaction_date TIMESTAMP WITH TIME ZONE NOT NULL,
-    CONSTRAINT pk_role_log PRIMARY KEY (user_id, transaction_date)
+    CONSTRAINT pk_role_log PRIMARY KEY (user_id, transaction_date),
+    CONSTRAINT role_types CHECK ((prev_role = 'user' OR prev_role = 'admin') AND (next_role = 'user' OR next_role = 'admin'))
 );
 
 CREATE OR REPLACE FUNCTION projectslog() RETURNS TRIGGER AS $$
