@@ -359,6 +359,7 @@ def inject_user_data(request, context):
 
 def edit_project(request):
     context = dict()
+    inject_user_data(request, context)
     context['pid'] = request.GET['pid']
 
     with connection.cursor() as cursor:
