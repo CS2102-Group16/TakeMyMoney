@@ -57,6 +57,16 @@
                             <button type="submit" class="btn btn-default"><span class="glyphicon glyphicon-search"></span></button>
                         </form>
                     </li>
+                    {% if role == 'admin' %}
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Manage <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li><a href="/userList/">User list</a></li>
+                            <li><a href="/projectsLog/">Projects log</a></li>
+                            <li><a href="/roleLog/">Role log</a></li>
+                        </ul>
+                    </li>
+                    {% endif %}
                     <li><a href="/userDetails/?user_id={{ user_id }}"><b>{{ user_email }}</b></a></li>
                     <li><a href="/signOut/">Sign out</a></li>
                 </ul>
