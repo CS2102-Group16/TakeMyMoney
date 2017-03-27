@@ -1,10 +1,10 @@
 INSERT INTO users (user_id, name, user_email, password) VALUES (1, 'John Doe', 'johndoe@example.com', 'password');
 INSERT INTO users (user_id, name, user_email, password) VALUES (2, 'Jane Doe', 'janedoe@example.com', 'password');
-INSERT INTO users (user_id, name, user_email, password) VALUES (3, 'Chuchu Zhang', 'chuchu@example.com', 'password');
-INSERT INTO users (user_id, name, user_email, password) VALUES (4, 'Elvin Teo', 'elvin@example.com', 'password');
-INSERT INTO users (user_id, name, user_email, password) VALUES (5, 'Matthew Song', 'matthew@example.com', 'password');
-INSERT INTO users (user_id, name, user_email, password) VALUES (6, 'Quoc Dat Nguyen', 'dat@example.com', 'password');
-INSERT INTO users (user_id, name, user_email, password) VALUES (7, 'Teddy Hartanto', 'teddy@example.com', 'password');
+INSERT INTO users (user_id, name, user_email, password, role) VALUES (3, 'Chuchu Zhang', 'chuchu@example.com', 'password', 'admin');
+INSERT INTO users (user_id, name, user_email, password, role) VALUES (4, 'Elvin Teo', 'elvin@example.com', 'password', 'admin');
+INSERT INTO users (user_id, name, user_email, password, role) VALUES (5, 'Matthew Song', 'matthew@example.com', 'password', 'admin');
+INSERT INTO users (user_id, name, user_email, password, role) VALUES (6, 'Quoc Dat Nguyen', 'dat@example.com', 'password', 'admin');
+INSERT INTO users (user_id, name, user_email, password, role) VALUES (7, 'Teddy Hartanto', 'teddy@example.com', 'password', 'admin');
 INSERT INTO users (user_id, name, user_email, password) VALUES (8, 'Aaron Swartz', 'aaronsw@example.com', 'password');
 INSERT INTO users (user_id, name, user_email, password) VALUES (9, 'Hugh Jackman', 'hugh@example.com', 'password');
 INSERT INTO users (user_id, name, user_email, password) VALUES (10, 'Benedict Cumberbatch', 'cumberbatch@example.com', 'password');
