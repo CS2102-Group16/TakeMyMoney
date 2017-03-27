@@ -555,7 +555,7 @@ def revoke_admin(request):
     inject_user_data(request, context)
 
     # An admin can only revoke his own admin status.
-    if context['role'] != 'admin':
+    if 'role' not in context or context['role'] != 'admin':
         return redirect('/')
 
     with connection.cursor() as cursor:
@@ -571,7 +571,7 @@ def projects_log(request):
     context = dict()
     inject_user_data(request, context)
 
-    if context['role'] != 'admin':
+    if 'role' not in context or context['role'] != 'admin':
         return redirect('/')
 
     with connection.cursor() as cursor:
