@@ -48,10 +48,13 @@ def project_list(request):
     if filtering == 'owned':
         with connection.cursor() as cursor:
             try:
-                project_attrs = ['title', 'description', 'target_fund', 'start_date', 'end_date', 'pid']
-                cursor.execute('SELECT ' +
-                               ', '.join(['p.' + project_attr for project_attr in project_attrs]) +
-                               ' FROM projects p WHERE p.user_id = %s' % context['user_id'])
+                project_attrs = ['title', 'description', 'target_fund', 'start_date', 'end_date', 'pid', 'category']
+                cursor.execute("SELECT p.title, p.description, p.target_fund, p.start_date, p.end_date, p.pid,"
+                               " string_agg(pc.category_name, ', ') FROM projects p"
+                               " LEFT OUTER JOIN projects_categories pc ON pc.pid = p.pid"
+                               " WHERE p.user_id = %s"
+                               " GROUP BY p.pid"
+                               " ORDER BY p.title ASC" % context['user_id'])
                 rows = cursor.fetchall()
                 projects = Helper.db_rows_to_dict(project_attrs, rows)
                 context['projects'] = projects
@@ -62,10 +65,13 @@ def project_list(request):
     elif filtering == 'pledged':
         with connection.cursor() as cursor:
             try:
-                project_attrs = ['title', 'description', 'target_fund', 'start_date', 'end_date', 'pid']
-                cursor.execute('SELECT ' +
-                               ', '.join(['p.' + project_attr for project_attr in project_attrs]) +
-                               ' FROM projects p INNER JOIN funding f ON p.pid = f.pid AND f.user_id = %s' % context['user_id'])
+                project_attrs = ['title', 'description', 'target_fund', 'start_date', 'end_date', 'pid', 'category']
+                cursor.execute("SELECT p.title, p.description, p.target_fund, p.start_date, p.end_date, p.pid,"
+                               " string_agg(pc.category_name, ', ') FROM projects p"
+                               " LEFT OUTER JOIN projects_categories pc ON pc.pid = p.pid"
+                               " INNER JOIN funding f ON p.pid = f.pid AND f.user_id = %s"
+                               " GROUP BY p.pid"
+                               " ORDER BY p.title ASC" % context['user_id'])
                 rows = cursor.fetchall()
                 projects = Helper.db_rows_to_dict(project_attrs, rows)
                 context['projects'] = projects
@@ -81,12 +87,15 @@ def project_list(request):
 
         with connection.cursor() as cursor:
             try:
-                project_attrs = ['title', 'description', 'target_fund', 'start_date', 'end_date', 'pid']
+                project_attrs = ['title', 'description', 'target_fund', 'start_date', 'end_date', 'pid', 'category']
                 # Hidden dragon, crouching input sanitization.
                 args = ('%' + search_input + '%', '%' + search_input + '%')
-                cursor.execute('SELECT ' +
-                               ', '.join(['p.' + project_attr for project_attr in project_attrs]) +
-                               ' FROM projects p WHERE p.title ILIKE %s OR p.description ILIKE %s', args)
+                cursor.execute("SELECT p.title, p.description, p.target_fund, p.start_date, p.end_date, p.pid,"
+                               " string_agg(pc.category_name, ', ') FROM projects p"
+                               " LEFT OUTER JOIN projects_categories pc ON pc.pid = p.pid"
+                               " WHERE p.title ILIKE %s OR p.description ILIKE %s"
+                               " GROUP BY p.pid"
+                               " ORDER BY p.title", args)
                 rows = cursor.fetchall()
                 projects = Helper.db_rows_to_dict(project_attrs, rows)
                 context['projects'] = projects
@@ -111,7 +120,7 @@ def project_list(request):
                     " string_agg(pc.category_name, ', ') FROM projects p" \
                     " LEFT OUTER JOIN projects_categories pc ON p.pid = pc.pid" \
                     " GROUP BY p.pid" \
-                    " ORDER BY p.pid ASC"
+                    " ORDER BY p.title ASC"
 
         if 'category' in request.GET:
             category_name = request.GET['category']
