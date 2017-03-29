@@ -1,5 +1,6 @@
 from django.http import HttpResponse
 from django.db import connection, IntegrityError
+from django.contrib import messages
 from django.shortcuts import render, redirect
 import uuid
 import datetime
@@ -9,6 +10,31 @@ import cloudinary.uploader
 import cloudinary.api
 
 from helper import Helper
+
+
+class ErrorMessages(object):
+    UNKNOWN = "An unknown error has occurred."
+    ADD_FAIL = "There was an error in creating your project. Please check your project data again."
+    ADD_CATEGORIES_FAIL = "There was an error in setting your project categories."
+    PROJECT_NOT_FOUND = "This project does not exist in the database."
+    ALREADY_LOGGED_IN = "You are already logged in."
+    USER_REGISTER_FAIL = "Failed to register."
+    UNAUTHORIZED = "You are not authorized to view this page or make this change."
+    MISSING_DATA = "Oops...did you forget to specify some required information?"
+    WRONG_CREDENTIALS = "Please check your e-mail or password."
+    LOGIN_FAILED = "Failed to log you in."
+    LOGOUT_FAILED = "Failed to log you out."
+    UPDATE_PROJECT_FAIL = "There was an error in updating your project."
+    UPDATE_PROJECT_CATEGORIES_FAIL = "There was an error in updating your project categories."
+    DELETE_PROJECT_FAIL = "There was an error in deleting your project."
+    PLEDGE_FAIL = "Failed to pledge for your project."
+    USER_NOT_FOUND = "This user does not exist in the database."
+    MAKE_ADMIN_FAIL = "Failed to make user an admin."
+    REVOKE_ADMIN_FAIL = "Failed to revoke user's admin status. " \
+                        "Please make sure there is at least one admin in the system after revocation."
+
+    def __setattr__(self, *_):
+        pass
 
 
 def authorize_modify_project(context, target_pid):
@@ -32,9 +58,8 @@ def authorize_modify_project(context, target_pid):
             sql = 'SELECT 1 FROM projects WHERE user_id = %s AND pid = %s'
             args = (context['user_id'], target_pid)
             cursor.execute(sql, args)
-        except Exception as e:
-            print e
-            return redirect('/')
+        except:
+            return False
 
         row = cursor.fetchone()
         return row is not None
@@ -45,7 +70,7 @@ def project_list(request):
     inject_user_data(request, context)
     filtering = request.GET.get('filter', None)
 
-    if filtering == 'owned':
+    if filtering == 'owned' and 'user_id' in context:
         with connection.cursor() as cursor:
             try:
                 project_attrs = ['title', 'description', 'target_fund', 'start_date', 'end_date', 'pid', 'category']
@@ -58,11 +83,11 @@ def project_list(request):
                 rows = cursor.fetchall()
                 projects = Helper.db_rows_to_dict(project_attrs, rows)
                 context['projects'] = projects
-            except Exception as e:
-                print e
+            except:
+                messages.add_message(request, messages.ERROR, ErrorMessages.UNKNOWN)
                 return redirect('/projectList/')
 
-    elif filtering == 'pledged':
+    elif filtering == 'pledged' and 'user_id' in context:
         with connection.cursor() as cursor:
             try:
                 project_attrs = ['title', 'description', 'target_fund', 'start_date', 'end_date', 'pid', 'category']
@@ -75,15 +100,12 @@ def project_list(request):
                 rows = cursor.fetchall()
                 projects = Helper.db_rows_to_dict(project_attrs, rows)
                 context['projects'] = projects
-            except Exception as e:
-                print e
+            except:
+                messages.add_message(request, messages.ERROR, ErrorMessages.UNKNOWN)
                 return redirect('/projectList/')
 
-    elif filtering == 'search':
-        search_input = request.POST.get('search', None)
-
-        if search_input is None:
-            return redirect('/')
+    elif filtering == 'search' and 'search' in request.POST:
+        search_input = request.POST['search']
 
         with connection.cursor() as cursor:
             try:
@@ -99,8 +121,8 @@ def project_list(request):
                 rows = cursor.fetchall()
                 projects = Helper.db_rows_to_dict(project_attrs, rows)
                 context['projects'] = projects
-            except Exception as e:
-                print e
+            except:
+                messages.add_message(request, messages.ERROR, ErrorMessages.UNKNOWN)
                 return redirect('/projectList/')
 
     else:
@@ -111,8 +133,8 @@ def project_list(request):
                 rows = cursor.fetchall()
                 categories = Helper.db_rows_to_dict(category_attrs, rows)
                 context['categories'] = categories
-            except Exception as e:
-                print e
+            except:
+                messages.add_message(request, messages.ERROR, ErrorMessages.UNKNOWN)
                 return redirect('/projectList/')
 
         project_attrs = ['title', 'description', 'target_fund', 'start_date', 'end_date', 'pid', 'category']
@@ -143,8 +165,8 @@ def project_list(request):
                 rows = cursor.fetchall()
                 projects = Helper.db_rows_to_dict(project_attrs, rows)
                 context['projects'] = projects
-            except Exception as e:
-                print e
+            except:
+                messages.add_message(request, messages.ERROR, ErrorMessages.UNKNOWN)
                 return redirect('/projectList/')
 
     return render(request, 'project_list.html', context=context)
@@ -163,8 +185,8 @@ def add_new_project(request):
             rows = cursor.fetchall()
             categories = Helper.db_rows_to_dict(category_attrs, rows)
             context['categories'] = categories
-        except Exception as e:
-            print e
+        except:
+            messages.add_message(request, messages.ERROR, ErrorMessages.UNKNOWN)
             return redirect('/addNewProject/')
 
     return render(request, 'add_new_project.html', context=context)
@@ -174,8 +196,11 @@ def store_project(request):
     upload_result = None
     context = dict()
     inject_user_data(request, context)
+
     if 'user_id' not in context:
-        redirect('/')
+        messages.add_message(request, messages.ERROR, ErrorMessages.UNAUTHORIZED)
+        return redirect('/')
+
     if len(request.FILES) > 0:
        upload_result = cloudinary.uploader.upload(request.FILES['photo'])
 
@@ -200,8 +225,8 @@ def store_project(request):
 
             cursor.execute(sql, args)
             connection.commit()
-        except IntegrityError as e:
-            print e
+        except IntegrityError:
+            messages.add_message(request, messages.ERROR, ErrorMessages.ADD_FAIL)
             return redirect('/addNewProject/')
 
     with connection.cursor() as cursor:
@@ -214,8 +239,8 @@ def store_project(request):
                 args = (cat, last_id)
                 cursor.execute(sql, args)
                 connection.commit()
-        except Exception as e:
-            print e
+        except:
+            messages.add_message(request, messages.ERROR, ErrorMessages.ADD_CATEGORIES_FAIL)
             return redirect('/addNewProject/')
 
     return redirect('/addNewProject/')
@@ -236,12 +261,13 @@ def project_details(request):
             projects = Helper.db_rows_to_dict(project_attrs, rows)
 
             if len(projects) < 1:
+                messages.add_message(request, messages.ERROR, ErrorMessages.PROJECT_NOT_FOUND)
                 return redirect('/')
 
             context['project'] = projects[0]
-        except Exception as e:
-            print e
-            return redirect('/projectDetails/')
+        except:
+            messages.add_message(request, messages.ERROR, ErrorMessages.UNKNOWN)
+            return redirect('/projectList/')
 
     with connection.cursor() as cursor:
         try:
@@ -252,14 +278,12 @@ def project_details(request):
             rows = cursor.fetchall()
             project_categories = Helper.db_rows_to_dict(projects_categories_attrs, rows)
             context['project_categories'] = project_categories
-        except Exception as e:
-            print e
-            return redirect('/projectDetails/')
+        except:
+            messages.add_message(request, messages.ERROR, ErrorMessages.UNKNOWN)
+            return redirect('/projectList/')
 
     with connection.cursor() as cursor:
         try:
-            funding_attrs = ['pledger', 'amount']
-            sql = 'SELECT u.name, f.amount FROM users u INNER JOIN funding f ON u.user_id = f.user_id AND f.pid = %s'
             funding_attrs = ['pledger_name', 'pledger_id', 'amount']
             sql = 'SELECT u.name, u.user_id, f.amount' \
                   ' FROM users u INNER JOIN funding f ON u.user_id = f.user_id' \
@@ -269,9 +293,9 @@ def project_details(request):
             rows = cursor.fetchall()
             pledges = Helper.db_rows_to_dict(funding_attrs, rows)
             context['pledges'] = pledges
-        except Exception as e:
-            print e
-            return redirect('/projectDetails/')
+        except:
+            messages.add_message(request, messages.ERROR, ErrorMessages.UNKNOWN)
+            return redirect('/projectList/')
 
     with connection.cursor() as cursor:
         try:
@@ -291,9 +315,9 @@ def project_details(request):
             rows = cursor.fetchall()
             related = Helper.db_rows_to_dict(related_project_attrs, rows)
             context['related'] = related
-        except Exception as e:
-            print e
-            return redirect('/projectDetails/')
+        except:
+            messages.add_message(request, messages.ERROR, ErrorMessages.UNKNOWN)
+            return redirect('/projectList/')
 
     return render(request, 'project_details.html', context=context)
 
@@ -309,19 +333,20 @@ def login(request):
                 cursor.execute(sql, args)
                 row = cursor.fetchone()
                 if row is not None:
+                    messages.add_message(request, messages.ERROR, ErrorMessages.ALREADY_LOGGED_IN)
                     return redirect('/')
                 else:
                     # session_id is in COOKIES, but it is an invalid one. So we delete it.
                     response.delete_cookie('session_id')
-            except Exception as e:
-                print e
+            except:
+                messages.add_message(request, messages.ERROR, ErrorMessages.UNKNOWN)
                 return response
 
     return response
 
 
 def add_new_user(request):
-    return render(request,'add_new_user.html',context=None)
+    return render(request, 'add_new_user.html', context=None)
 
 
 def store_user(request):
@@ -331,9 +356,8 @@ def store_user(request):
             args = (request.POST['user_email'], request.POST['password'], request.POST['name'])
             cursor.execute(sql, args)
             connection.commit()
-        except Exception as e:
-            print e
-            return redirect('/userList/')
+        except:
+            messages.add_message(request, messages.ERROR, ErrorMessages.USER_REGISTER_FAIL)
 
     return redirect('/userList/')
 
@@ -343,6 +367,7 @@ def user_list(request):
     inject_user_data(request, context)
 
     if 'role' not in context or context['role'] != 'admin':
+        messages.add_message(request, messages.ERROR, ErrorMessages.UNAUTHORIZED)
         return redirect('/')
 
     with connection.cursor() as cursor:
@@ -352,8 +377,8 @@ def user_list(request):
             rows = cursor.fetchall()
             users = Helper.db_rows_to_dict(user_attrs, rows)
             context['users'] = users
-        except Exception as e:
-            print e
+        except:
+            messages.add_message(request, messages.ERROR, ErrorMessages.UNKNOWN)
             return redirect('/userList/')
 
     return render(request, 'user_list.html', context=context)
@@ -361,10 +386,12 @@ def user_list(request):
 
 def attempt_login(request):
     if 'session_id' in request.COOKIES:
+        messages.add_message(request, messages.ERROR, ErrorMessages.ALREADY_LOGGED_IN)
         redirect('/')
 
     # Validate login credentials
     if 'user_email' not in request.POST or 'password' not in request.POST:
+        messages.add_message(request, messages.ERROR, ErrorMessages.MISSING_DATA)
         return redirect('/')
     with connection.cursor() as cursor:
         try:
@@ -372,19 +399,22 @@ def attempt_login(request):
             args = (request.POST['user_email'], )
             cursor.execute(sql, args)
             rows = cursor.fetchall()
-        except Exception as e:
-            print e
+        except:
+            messages.add_message(request, messages.ERROR, ErrorMessages.UNKNOWN)
             return redirect('/')
     if len(rows) == 0:
+        messages.add_message(request, messages.ERROR, ErrorMessages.WRONG_CREDENTIALS)
         return redirect('/')
 
     user_id, password = rows[0]
     if password != request.POST['password']:
+        messages.add_message(request, messages.ERROR, ErrorMessages.WRONG_CREDENTIALS)
         return redirect('/')
 
     # Construct new session
     session_id = uuid.uuid4()
 
+    response = redirect('/')
     with connection.cursor() as cursor:
         try:
             cursor.execute(
@@ -393,12 +423,11 @@ def attempt_login(request):
                    user_id)
             )
             connection.commit()
-        except Exception as e:
-            print e
-            return redirect('/')
+        except:
+            messages.add_message(request, messages.ERROR, ErrorMessages.LOGIN_FAILED)
+        else:
+            response.set_cookie('session_id', session_id)
 
-    response = redirect('/')
-    response.set_cookie('session_id', session_id)
     return response
 
 
@@ -408,17 +437,18 @@ def logout(request):
 
     session_id = request.COOKIES['session_id']
 
+    response = redirect('/')
     with connection.cursor() as cursor:
         try:
             sql = 'DELETE FROM sessions WHERE session_id = %s'
             args = (session_id, )
             cursor.execute(sql, args)
             connection.commit()
-        except Exception as e:
-            print e
+        except:
+            messages.add_message(request, messages.ERROR, ErrorMessages.LOGOUT_FAILED)
+        else:
+            response.delete_cookie('session_id')
 
-    response = redirect('/')
-    response.delete_cookie('session_id')
     return response
 
 
@@ -437,8 +467,7 @@ def inject_user_data(request, context):
             cursor.execute(sql, args)
             rows = cursor.fetchall()
             users = Helper.db_rows_to_dict(user_attrs, rows)
-        except Exception as e:
-            print e
+        except:
             return
 
     if len(users) == 0:
@@ -453,6 +482,11 @@ def inject_user_data(request, context):
 def edit_project(request):
     context = dict()
     inject_user_data(request, context)
+
+    if 'pid' not in request.GET:
+        messages.add_message(request, messages.ERROR, ErrorMessages.PROJECT_NOT_FOUND)
+        return redirect('/')
+
     context['pid'] = request.GET['pid']
 
     with connection.cursor() as cursor:
@@ -461,9 +495,9 @@ def edit_project(request):
             args = (context['pid'], )
             cursor.execute(sql, args)
             rows = cursor.fetchall()
-        except IntegrityError as e:
-            print e
-            return redirect('/editProject/')
+        except:
+            messages.add_message(request, messages.ERROR, ErrorMessages.UNKNOWN)
+            return redirect('/projectDetails/?pid=%s' % context['pid'])
 
     context['title'], context['description'], context['target_fund'], context['start_date'], context['end_date'] = rows[0]
 
@@ -474,9 +508,9 @@ def edit_project(request):
             rows = cursor.fetchall()
             categories = Helper.db_rows_to_dict(category_attrs, rows)
             context['categories'] = categories
-        except Exception as e:
-            print e
-            return redirect('/editProject/')
+        except:
+            messages.add_message(request, messages.ERROR, ErrorMessages.UNKNOWN)
+            return redirect('/projectDetails/?pid=%s' % context['pid'])
 
     with connection.cursor() as cursor:
         try:
@@ -486,9 +520,9 @@ def edit_project(request):
             rows = cursor.fetchall()
             projects_categories = Helper.db_rows_to_dict(projects_categories_attrs, rows)
             context['projects_categories'] = projects_categories
-        except Exception as e:
-            print e
-            return redirect('/editProject/')
+        except:
+            messages.add_message(request, messages.ERROR, ErrorMessages.UNKNOWN)
+            return redirect('/projectDetails/?pid=%s' % context['pid'])
 
     return render(request, 'edit_project.html', context=context)
 
@@ -509,9 +543,9 @@ def update_project(request):
                     request.POST['start_date'], request.POST['end_date'], pid)
             cursor.execute(sql, args)
             connection.commit()
-        except Exception as e:
-            print e
-            return redirect('/')
+        except:
+            messages.add_message(request, messages.ERROR, ErrorMessages.UPDATE_PROJECT_FAIL)
+            return redirect('/projectDetails/?pid=%s' % pid)
 
     with connection.cursor() as cursor:
         try:
@@ -520,9 +554,9 @@ def update_project(request):
             cursor.execute(sql)
             rows = cursor.fetchall()
             projects_categories = list(sum(rows, ()))
-        except Exception as e:
-            print e
-            return redirect('/')
+        except:
+            messages.add_message(request, messages.ERROR, ErrorMessages.UPDATE_PROJECT_CATEGORIES_FAIL)
+            return redirect('/projectDetails/?pid=%s' % pid)
 
         for cat in category_list:
             if cat not in projects_categories:
@@ -531,9 +565,9 @@ def update_project(request):
                     args = (cat, pid)
                     cursor.execute(sql, args)
                     connection.commit()
-                except Exception as e:
-                    print e
-                    return redirect('/')
+                except:
+                    messages.add_message(request, messages.ERROR, ErrorMessages.UPDATE_PROJECT_CATEGORIES_FAIL)
+                    return redirect('/projectDetails/?pid=%s' % pid)
 
         for cat in projects_categories:
             if cat not in category_list:
@@ -542,9 +576,9 @@ def update_project(request):
                     args = (cat, pid)
                     cursor.execute(sql, args)
                     connection.commit()
-                except Exception as e:
-                    print e
-                    return redirect('/')
+                except:
+                    messages.add_message(request, messages.ERROR, ErrorMessages.UPDATE_PROJECT_CATEGORIES_FAIL)
+                    return redirect('/projectDetails/?pid=%s' % pid)
 
     return redirect('/projectDetails/?pid=%s' % pid)
 
@@ -555,6 +589,7 @@ def delete_project(request):
     pid = request.GET.get('pid', None)
 
     if (pid is None) or not authorize_modify_project(context, pid):
+        messages.add_message(request, messages.ERROR, ErrorMessages.UNAUTHORIZED)
         return redirect('/')
 
     with connection.cursor() as cursor:
@@ -563,11 +598,11 @@ def delete_project(request):
             args = (pid, )
             cursor.execute(sql, args)
             connection.commit()
-        except Exception as e:
-            print e
-            return redirect('/')
+        except:
+            messages.add_message(request, messages.ERROR, ErrorMessages.DELETE_PROJECT_FAIL)
+            return redirect('/projectDetails/?pid=%s' % pid)
 
-    return redirect('/')
+    return redirect('/projectDetails/?pid=%s' % pid)
 
 
 def add_funding(request):
@@ -582,9 +617,9 @@ def add_funding(request):
             cursor.execute(sql, args)
             rows = cursor.fetchall()
             projects = Helper.db_rows_to_dict(project_attrs, rows)
-        except Exception as e:
-            print e
-            return redirect('/')
+        except:
+            messages.add_message(request, messages.ERROR, ErrorMessages.UNKNOWN)
+            return redirect('/projectDetails/?pid=%s' % pid)
 
     context = {
         'title': projects[0]['title'],
@@ -599,10 +634,16 @@ def store_funding(request):
     context = dict()
     inject_user_data(request, context)
     pid = request.GET.get('pid', None)
-    amount = request.GET['amount']
+    amount = request.GET['amount', None]
+
     if pid is None:
+        messages.add_message(request, messages.ERROR, ErrorMessages.PROJECT_NOT_FOUND)
         return redirect('/')
+    if 'amount' is None:
+        messages.add_message(request, messages.ERROR, ErrorMessages.MISSING_DATA)
+        return redirect('/projectDetails/?pid=%s' % pid)
     if 'user_id' not in context:
+        messages.add_message(request, messages.ERROR, ErrorMessages.UNAUTHORIZED)
         return redirect('/projectDetails/?pid=%s' % pid)
 
     with connection.cursor() as cursor:
@@ -612,8 +653,8 @@ def store_funding(request):
             cursor.execute(sql, args)
             rows = cursor.fetchall()
             funding_exists = len(rows) > 0
-        except Exception as e:
-            print e
+        except:
+            messages.add_message(request, messages.ERROR, ErrorMessages.UNKNOWN)
             return redirect('/projectDetails/?pid=%s' % pid)
 
     if funding_exists:
@@ -623,8 +664,8 @@ def store_funding(request):
                 args = (amount, context['user_id'], pid)
                 cursor.execute(sql, args)
                 connection.commit()
-            except Exception as e:
-                print e
+            except:
+                messages.add_message(request, messages.ERROR, ErrorMessages.PLEDGE_FAIL)
                 return redirect('/projectDetails/?pid=%s' % pid)
     else:
         with connection.cursor() as cursor:
@@ -633,8 +674,8 @@ def store_funding(request):
                 args = (context['user_id'], pid, amount)
                 cursor.execute(sql, args)
                 connection.commit()
-            except Exception as e:
-                print e
+            except:
+                messages.add_message(request, messages.ERROR, ErrorMessages.PLEDGE_FAIL)
                 return redirect('/projectDetails/?pid=%s' % pid)
 
     return redirect('/projectDetails/?pid=%s' % pid)
@@ -646,6 +687,7 @@ def user_details(request):
     user_id = request.GET.get('user_id', None)
 
     if user_id is None:
+        messages.add_message(request, messages.ERROR, ErrorMessages.USER_NOT_FOUND)
         return redirect('/')
 
     with connection.cursor() as cursor:
@@ -656,14 +698,15 @@ def user_details(request):
             cursor.execute(sql, args)
             rows = cursor.fetchall()
             if len(rows) < 1:
+                messages.add_message(request, messages.ERROR, ErrorMessages.USER_NOT_FOUND)
                 return redirect('/')
             users = Helper.db_rows_to_dict(user_attrs, rows)
             context['target_role'] = users[0]['role']
             context['target_email'] = users[0]['user_email']
             context['target_id'] = users[0]['user_id']
             context['target_name'] = users[0]['name']
-        except Exception as e:
-            print e
+        except:
+            messages.add_message(request, messages.ERROR, ErrorMessages.UNKNOWN)
             return redirect('/')
 
     context['me'] = (str(user_id) == str(context['user_id']))
@@ -677,7 +720,8 @@ def make_admin(request):
     user_id = request.GET.get('user_id', None)
 
     # Only an admin can elevate others to admin status.
-    if (user_id is None) or (context['role'] != 'admin'):
+    if (user_id is None) or ('role' not in context) or (context['role'] != 'admin'):
+        messages.add_message(request, messages.ERROR, ErrorMessages.UNAUTHORIZED)
         return redirect('/')
 
     with connection.cursor() as cursor:
@@ -686,9 +730,9 @@ def make_admin(request):
             args = (user_id, )
             cursor.execute(sql, args)
             connection.commit()
-        except Exception as e:
-            print e
-            return redirect('/')
+        except:
+            messages.add_message(request, messages.ERROR, ErrorMessages.MAKE_ADMIN_FAIL)
+            return redirect('/userDetails/?user_id=%s' % user_id)
 
     return redirect('/userDetails/?user_id=%s' % user_id)
 
@@ -699,6 +743,7 @@ def revoke_admin(request):
 
     # An admin can only revoke his own admin status.
     if 'role' not in context or context['role'] != 'admin':
+        messages.add_message(request, messages.ERROR, ErrorMessages.UNAUTHORIZED)
         return redirect('/')
 
     with connection.cursor() as cursor:
@@ -707,9 +752,9 @@ def revoke_admin(request):
             args = (context['user_id'],)
             cursor.execute(sql, args)
             connection.commit()
-        except Exception as e:
-            print e
-            return redirect('/')
+        except:
+            messages.add_message(request, messages.ERROR, ErrorMessages.REVOKE_ADMIN_FAIL)
+            return redirect('/userDetails/?user_id=%s' % context['user_id'])
 
     return redirect('/userDetails/?user_id=%s' % context['user_id'])
 
@@ -719,6 +764,7 @@ def projects_log(request):
     inject_user_data(request, context)
 
     if 'role' not in context or context['role'] != 'admin':
+        messages.add_message(request, messages.ERROR, ErrorMessages.UNAUTHORIZED)
         return redirect('/')
 
     with connection.cursor() as cursor:
@@ -740,6 +786,7 @@ def role_log(request):
     inject_user_data(request, context)
 
     if 'role' not in context or context['role'] != 'admin':
+        messages.add_message(request, messages.ERROR, ErrorMessages.UNAUTHORIZED)
         return redirect('/')
 
     with connection.cursor() as cursor:
