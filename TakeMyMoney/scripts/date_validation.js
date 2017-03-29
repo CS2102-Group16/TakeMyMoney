@@ -5,7 +5,7 @@ function date_validation(){
     var message
 
     if(!(startDate < endDate)) {
-        $("#date_checker").html("Funding end date must be after start date");
+        $("#date_checker").html("Funding start date must be before end date");
         document.getElementById("submit").disabled = true;
     }
     else {
