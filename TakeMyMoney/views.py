@@ -221,10 +221,6 @@ def store_project(request):
     return redirect('/addNewProject/')
 
 
-def search_project(request):
-    return render(request, 'search_project.html', context=None)
-
-
 def project_details(request):
     context = dict()
     inject_user_data(request, context)

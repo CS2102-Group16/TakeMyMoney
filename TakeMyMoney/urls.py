@@ -25,7 +25,6 @@ urlpatterns = [
     url(r'^storeProject/', views.store_project),
     url(r'^$', views.project_list),
 
-    url(r'^searchProject/', views.search_project),
     url(r'^projectDetails/', views.project_details),
 
     url(r'^editProject/', views.edit_project),
