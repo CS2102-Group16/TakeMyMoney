@@ -43,6 +43,9 @@
         <div class="ui four stackable cards">
             {% for project in projects %}
                 <div class="teal card">
+                    <div class="image">
+                        <img src="{{ project.photo_url }}">
+                    </div>
                     <div class="content">
                         <a class="header" href="/projectDetails/?pid={{ project.pid }}">{{ project.title }}</a>
                         <div class="meta">Ends on <b>{{ project.end_date }}</b></div>

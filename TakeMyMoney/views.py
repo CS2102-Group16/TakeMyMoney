@@ -66,6 +66,7 @@ def authorize_modify_project(context, target_pid):
         return row is not None
 
 
+# TODO: The function is too messy. Clean it up
 def project_list(request):
     context = dict()
     inject_user_data(request, context)
@@ -74,8 +75,8 @@ def project_list(request):
     if filtering == 'owned' and 'user_id' in context:
         with connection.cursor() as cursor:
             try:
-                project_attrs = ['title', 'description', 'target_fund', 'start_date', 'end_date', 'pid', 'category']
-                cursor.execute("SELECT p.title, p.description, p.target_fund, p.start_date, p.end_date, p.pid,"
+                project_attrs = ['title', 'description', 'photo_url', 'target_fund', 'start_date', 'end_date', 'pid', 'category']
+                cursor.execute("SELECT p.title, p.description, p.photo_url, p.target_fund, p.start_date, p.end_date, p.pid,"
                                " string_agg(pc.category_name, ', ') FROM projects p"
                                " LEFT OUTER JOIN projects_categories pc ON pc.pid = p.pid"
                                " WHERE p.user_id = %s"
@@ -90,8 +91,8 @@ def project_list(request):
     elif filtering == 'pledged' and 'user_id' in context:
         with connection.cursor() as cursor:
             try:
-                project_attrs = ['title', 'description', 'target_fund', 'start_date', 'end_date', 'pid', 'category']
-                cursor.execute("SELECT p.title, p.description, p.target_fund, p.start_date, p.end_date, p.pid,"
+                project_attrs = ['title', 'description', 'photo_url', 'target_fund', 'start_date', 'end_date', 'pid', 'category']
+                cursor.execute("SELECT p.title, p.description, p.photo_url, p.target_fund, p.start_date, p.end_date, p.pid,"
                                " string_agg(pc.category_name, ', ') FROM projects p"
                                " LEFT OUTER JOIN projects_categories pc ON pc.pid = p.pid"
                                " INNER JOIN funding f ON p.pid = f.pid AND f.user_id = %s"
@@ -108,10 +109,10 @@ def project_list(request):
 
         with connection.cursor() as cursor:
             try:
-                project_attrs = ['title', 'description', 'target_fund', 'start_date', 'end_date', 'pid', 'category']
+                project_attrs = ['title', 'description', 'photo_url', 'target_fund', 'start_date', 'end_date', 'pid', 'category']
                 # Hidden dragon, crouching input sanitization.
                 args = ('%' + search_input + '%', '%' + search_input + '%')
-                cursor.execute("SELECT p.title, p.description, p.target_fund, p.start_date, p.end_date, p.pid,"
+                cursor.execute("SELECT p.title, p.description, p.photo_url, p.target_fund, p.start_date, p.end_date, p.pid,"
                                " string_agg(pc.category_name, ', ') FROM projects p"
                                " LEFT OUTER JOIN projects_categories pc ON pc.pid = p.pid"
                                " WHERE p.title ILIKE %s OR p.description ILIKE %s"
@@ -135,8 +136,8 @@ def project_list(request):
                 messages.add_message(request, messages.ERROR, ErrorMessages.UNKNOWN)
                 return redirect('/projectList/')
 
-        project_attrs = ['title', 'description', 'target_fund', 'start_date', 'end_date', 'pid', 'category']
-        query_str = "SELECT p.title, p.description, p.target_fund, p.start_date, p.end_date, p.pid," \
+        project_attrs = ['title', 'description', 'photo_url', 'target_fund', 'start_date', 'end_date', 'pid', 'category']
+        query_str = "SELECT p.title, p.description, p.photo_url, p.target_fund, p.start_date, p.end_date, p.pid," \
                     " string_agg(pc.category_name, ', ') FROM projects p" \
                     " LEFT OUTER JOIN projects_categories pc ON p.pid = pc.pid" \
                     " GROUP BY p.pid" \
@@ -145,12 +146,12 @@ def project_list(request):
         if 'category' in request.GET:
             category_name = request.GET['category']
             if not category_name == 'All':
-                query_str = "SELECT p.title, p.description, p.target_fund, p.start_date, p.end_date, p.pid," \
+                query_str = "SELECT p.title, p.description, p.photo_url, p.target_fund, p.start_date, p.end_date, p.pid," \
                             " string_agg(pc.category_name, ', ') FROM projects p" \
                             " NATURAL JOIN projects_categories pc" \
                             " GROUP BY p.pid" \
                             " EXCEPT" \
-                            " SELECT p2.title, p2.description, p2.target_fund, p2.start_date, p2.end_date, p2.pid," \
+                            " SELECT p2.title, p2.description, p.photo_url, p2.target_fund, p2.start_date, p2.end_date, p2.pid," \
                             " string_agg(pc2.category_name, ', ')" \
                             " FROM projects p2" \
                             " NATURAL JOIN projects_categories pc2" \
@@ -178,8 +179,6 @@ def project_list(request):
 
     context['projects'] = projects_in_page.object_list
     context['page'] = projects_in_page
-
-    print(dir(projects_in_page))
 
     return render(request, 'project_list.html', context=context)
 
