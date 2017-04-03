@@ -2,6 +2,19 @@
 
 {% block title %}Take My Money{% endblock %}
 
+{% block style %}
+<style>
+/*
+    div.blue {
+        background-color: #2980B9 !important;
+        color: #ECF0F1 !important;
+        text-shadow: none !important;
+        background-image: none !important;
+    }
+*/
+</style>
+{% endblock %}
+
 {% block content %}
     <!-- TODO: Replace all Bootstrap components with Semantic -->
     <!-- TODO: Should show only projects that has started -> do an SQL for this -->
@@ -25,10 +38,10 @@
         <!-- NOTE: remove the 'four stackable' and you'll have a fixed size stackable cards, but default to 3 in a row -->
         <div class="ui four stackable cards">
             {% for project in projects %}
-                <div class="card">
+                <div class="teal card">
                     <div class="content">
                         <a class="header" href="/projectDetails/?pid={{ project.pid }}">{{ project.title }}</a>
-                        <div class="meta">Project ends on <b>{{ project.end_date }}</b></div>
+                        <div class="meta">Ends on <b>{{ project.end_date }}</b></div>
                         <div class="description">{{ project.description }}</div>
                     </div>
                     <div class="extra content">
