@@ -1,5 +1,5 @@
 from django.http import HttpResponse
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from django.db import connection, IntegrityError
 from django.contrib import messages
 from django.shortcuts import render, redirect
@@ -171,10 +171,10 @@ def project_list(request):
     page = request.GET.get('page')
     try:
         projects_in_page = paginator.page(page)
-    except PageNotAnInteger:
-        projects_in_page = paginator.page(1)
     except EmptyPage:
         projects_in_page = paginator.page(paginator.num_pages)
+    except InvalidPage:
+        projects_in_page = paginator.page(1)
 
     context['projects'] = projects_in_page.object_list
     context['page'] = projects_in_page
