@@ -1,4 +1,5 @@
 from django.http import HttpResponse
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db import connection, IntegrityError
 from django.contrib import messages
 from django.shortcuts import render, redirect
@@ -82,7 +83,6 @@ def project_list(request):
                                " ORDER BY p.title ASC" % context['user_id'])
                 rows = cursor.fetchall()
                 projects = Helper.db_rows_to_dict(project_attrs, rows)
-                context['projects'] = projects
             except:
                 messages.add_message(request, messages.ERROR, ErrorMessages.UNKNOWN)
                 return redirect('/projectList/')
@@ -99,7 +99,6 @@ def project_list(request):
                                " ORDER BY p.title ASC" % context['user_id'])
                 rows = cursor.fetchall()
                 projects = Helper.db_rows_to_dict(project_attrs, rows)
-                context['projects'] = projects
             except:
                 messages.add_message(request, messages.ERROR, ErrorMessages.UNKNOWN)
                 return redirect('/projectList/')
@@ -120,7 +119,6 @@ def project_list(request):
                                " ORDER BY p.title", args)
                 rows = cursor.fetchall()
                 projects = Helper.db_rows_to_dict(project_attrs, rows)
-                context['projects'] = projects
             except:
                 messages.add_message(request, messages.ERROR, ErrorMessages.UNKNOWN)
                 return redirect('/projectList/')
@@ -164,10 +162,24 @@ def project_list(request):
                 cursor.execute(query_str)
                 rows = cursor.fetchall()
                 projects = Helper.db_rows_to_dict(project_attrs, rows)
-                context['projects'] = projects
             except:
                 messages.add_message(request, messages.ERROR, ErrorMessages.UNKNOWN)
                 return redirect('/projectList/')
+
+    paginator = Paginator(projects, 20)  # Show 20 projects per page
+
+    page = request.GET.get('page')
+    try:
+        projects_in_page = paginator.page(page)
+    except PageNotAnInteger:
+        projects_in_page = paginator.page(1)
+    except EmptyPage:
+        projects_in_page = paginator.page(paginator.num_pages)
+
+    context['projects'] = projects_in_page.object_list
+    context['page'] = projects_in_page
+
+    print(dir(projects_in_page))
 
     return render(request, 'project_list.html', context=context)
 

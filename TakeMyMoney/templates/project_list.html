@@ -12,6 +12,10 @@
         background-image: none !important;
     }
 */
+
+    .ui.menu .item>i.icon {
+        margin: 0 !important;
+    }
 </style>
 {% endblock %}
 
@@ -51,6 +55,39 @@
                     </div>
                 </div>
             {% endfor %}
+        </div>
+
+        <div class="sixteen wide column">
+            <div class="ui pagination menu floated right">
+
+                {% if page.has_previous %}
+                    <a class="item" href="?page={{page.previous_page_number}}">
+                {% else %}
+                    <a class="disabled item">
+                {% endif %}
+                        <i class="angle left icon"></i>
+                    </a>
+
+
+                {% for i in page.paginator.page_range %}
+                    {% if page.number == i %}
+                        <a class="active item">
+                    {% else %}
+                        <a class="item" href="?page={{i}}">
+                    {% endif %}
+                            {{ i }}
+                        </a>
+                {% endfor %}
+
+
+                {% if page.has_next %}
+                    <a class="item" href="?page={{page.next_page_number}}">
+                {% else %}
+                    <a class="disabled item">
+                {% endif %}
+                        <i class="angle right icon"></i>
+                    </a>
+            </div>
         </div>
 
 
