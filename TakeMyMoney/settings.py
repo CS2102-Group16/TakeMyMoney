@@ -130,4 +130,4 @@ USE_TZ = True
 
 STATIC_URL = '/TakeMyMoney/static/'
 
-STATICFILES_DIRS = [os.path.join(BASE_DIR, 'TakeMyMoney', 'scripts')]
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'TakeMyMoney', 'scripts'), BASE_DIR]

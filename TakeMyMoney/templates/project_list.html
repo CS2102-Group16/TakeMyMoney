@@ -3,41 +3,69 @@
 {% block title %}Take My Money{% endblock %}
 
 {% block content %}
-    <div class="container">
-        <h1>Project list</h1>
-        <div class="dropdown">
-            <button class="btn btn-default dropdown-toggle" type="button" id="categoryMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                Category
-                <span class="caret"></span>
-            </button>
-            <ul class="dropdown-menu" id="categoryList" aria-labelledby="categoryMenu">
-                <li><a href="/projectList/?category=All">All</a></li>
-                {% for category in categories %}
-                <li><a href="/projectList/?category={{ category.name }}">{{ category.name }}</a></li>
-                {% endfor %}
-            </ul>
+    <!-- TODO: Replace all Bootstrap components with Semantic -->
+    <!-- TODO: Should show only projects that has started -> do an SQL for this -->
+    <div class="ui grid">
+        <div class="sixteen wide column">
+            <h1>Project list</h1>
+            <div class="dropdown">
+                <button class="btn btn-default dropdown-toggle" type="button" id="categoryMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Category
+                    <span class="caret"></span>
+                </button>
+                <ul class="dropdown-menu" id="categoryList" aria-labelledby="categoryMenu">
+                    <li><a href="/projectList/?category=All">All</a></li>
+                    {% for category in categories %}
+                    <li><a href="/projectList/?category={{ category.name }}">{{ category.name }}</a></li>
+                    {% endfor %}
+                </ul>
+            </div>
         </div>
-        <table class="table">
-            <thead>
-                <th>Title</th>
-                <th>Description</th>
-                <th>Target Fund</th>
-                <th>Start Date</th>
-                <th>End Date</th>
-                <th>Category</th>
-            </thead>
-            <tbody>
+
+        <!-- NOTE: remove the 'four stackable' and you'll have a fixed size stackable cards, but default to 3 in a row -->
+        <div class="ui four stackable cards">
             {% for project in projects %}
-            <tr>
-                <td><a href="/projectDetails/?pid={{ project.pid }}">{{ project.title }}</a></td>
-                <td>{{ project.description }}</td>
-                <td>${{ project.target_fund }}</td>
-                <td>{{ project.start_date }}</td>
-                <td>{{ project.end_date }}</td>
-                <td>{{ project.category }}</td>
-            </tr>
+                <div class="card">
+                    <div class="content">
+                        <a class="header" href="/projectDetails/?pid={{ project.pid }}">{{ project.title }}</a>
+                        <div class="meta">Project ends on <b>{{ project.end_date }}</b></div>
+                        <div class="description">{{ project.description }}</div>
+                    </div>
+                    <div class="extra content">
+                        <div class="right floated">
+                            Target fund: <b>${{ project.target_fund }}</b>
+                        </div>
+                    </div>
+                </div>
             {% endfor %}
-            </tbody>
-        </table>
+        </div>
+
+
+
+
+        <!--<table class="table">-->
+            <!--<thead>-->
+                <!--<th>Title</th>-->
+                <!--<th>Description</th>-->
+                <!--<th>Target Fund</th>-->
+                <!--<th>Start Date</th>-->
+                <!--<th>End Date</th>-->
+                <!--<th>Category</th>-->
+            <!--</thead>-->
+            <!--<tbody>-->
+            <!--{% for project in projects %}-->
+            <!--<tr>-->
+                <!--<td><a href="/projectDetails/?pid={{ project.pid }}">{{ project.title }}</a></td>-->
+                <!--<td>{{ project.description }}</td>-->
+                <!--<td>${{ project.target_fund }}</td>-->
+                <!--<td>{{ project.start_date }}</td>-->
+                <!--<td>{{ project.end_date }}</td>-->
+                <!--<td>{{ project.category }}</td>-->
+            <!--</tr>-->
+            <!--{% endfor %}-->
+            <!--</tbody>-->
+        <!--</table>-->
     </div>
+
+
 {% endblock %}
