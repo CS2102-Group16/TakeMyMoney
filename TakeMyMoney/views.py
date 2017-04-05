@@ -151,7 +151,7 @@ def project_list(request):
                             " NATURAL JOIN projects_categories pc" \
                             " GROUP BY p.pid" \
                             " EXCEPT" \
-                            " SELECT p2.title, p2.description, p.photo_url, p2.target_fund, p2.start_date, p2.end_date, p2.pid," \
+                            " SELECT p2.title, p2.description, p2.photo_url, p2.target_fund, p2.start_date, p2.end_date, p2.pid," \
                             " string_agg(pc2.category_name, ', ')" \
                             " FROM projects p2" \
                             " NATURAL JOIN projects_categories pc2" \
