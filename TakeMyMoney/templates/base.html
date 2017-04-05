@@ -107,8 +107,8 @@
     <div class="ui main container">
         {% if messages %}
         {% for message in messages %}
-        <div class="alert alert-{% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}danger{% else %}info{% endif %}">
-            {{ message }}
+        <div class="ui {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}danger{% else %}info{% endif %} message">
+            <p>{{ message }}</p>
         </div>
         {% endfor %}
         {% endif %}
