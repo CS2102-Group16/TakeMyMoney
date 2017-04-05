@@ -35,75 +35,103 @@
 {% endblock %}
 
 {% block content %}
-    <div class="container">
-        <table class="container">
-            <h1 class="text-center">{{ project.title }}</h1>
-            <p class="text-center">{{ project.description }}</p>
+    <div class="ui grid" id="project-details">
+
+        <!-- Project details -->
+        <div class="sixteen wide column">
+            <h1 class="ui header center aligned">{{ project.title }}</h1>
+            <p style="text-align: center;">{{ project.description }}</p>
             {% if project.photo_url %}
                 <img class="center-block" src="{{ project.photo_url }}"
                  alt="project.photo_url" id="project_img">
             {% endif %}
-            <div class>
-                <label>Category: </label>
-                {% for project_cate in project_categories %}
-                <a class="category" href="/projectList/?category={{ project_cate.category_name }}">{{ project_cate.category_name }}</a>
-                {% endfor %}
-            </div>
-            {% if pledges %}
-            <table class="table">
-                <thead>
-                    <th>Pledger</th>
-                    <th>Amount</th>
-                </thead>
-                <tbody>
-                {% for pledge in pledges %}
-                <tr>
-                    <td><a href="/userDetails/?user_id={{ pledge.pledger_id }}">{{ pledge.pledger_name }}</a></td>
-                    <td>${{ pledge.amount }}</td>
-                </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-            {% endif %}
-            {% if related %}
-            <table class="table">
-                <label>Related Projects: </label>
-                <thead>
-                    <th>Title</th>
-                    <th>Description</th>
-                </thead>
-                <tbody>
-                {% for related_project in related %}
-                <tr>
-                    <td>{{ related_project.title }}</td>
-                    <td>{{ related_project.description }}</td>
-                </tr>
-                {% endfor %}
-                </tbody>
-            </table>
-            {% endif %}
-            <div class="project-footer">
-                <div class="pull-left">
-                    <span><b>Target fund: {{ project.target_fund }}</b></span>
-                    <div class="funded-bar-wrapper bg-grey">
-                        <div class="funded-bar bg-green" style="width: 60%"></div>
+            <div class="ui segment">
+                <div class="ui two column grid">
+                    <div class="left floated column">
+                        <label>Category: </label>
+                        {% for project_cate in project_categories %}
+                            <a class="ui teal label" href="/projectList/?category={{ project_cate.category_name }}">{{ project_cate.category_name }}</a>
+                        {% endfor %}
+                    </div>
+
+                    <div class="right floated column">
+                        <!-- TODO: Need to check ownership -->
+                        {% if user_id %}
+                            <a href="/editProject/?pid={{ project.pid }}" class="ui orange button right floated" role="button">Edit</a>
+                            <a href="/deleteProject/?pid={{ project.pid }}" class="ui red button right floated" role="button">Delete</a>
+                        {% endif %}
                     </div>
                 </div>
-                <span class="pull-right"><b>Ends on: {{ project.end_date }}</b></span>
             </div>
-            {% if user_id %}
-            <div>
-                <div class="pull-left">
-                    <form action="/addFunding/?pid={{ project.pid }}" method="POST">
-                        {% csrf_token %}
-                        <input type="number" class="form-control" name="amount" id="amount">
-                        <button type="submit" class="btn btn-success">Pledge</button>
-                    </form>
-                </div>
-                <a href="/editProject/?pid={{ project.pid }}" class="btn btn-warning pull-right" role="button">Edit</a>
-                <a href="/deleteProject/?pid={{ project.pid }}" class="btn btn-danger pull-right" role="button">Delete</a>
-            </div>
-            {% endif %}
         </div>
+
+
+        <div class="sixteen wide column">
+            <div class="ui grid">
+                <!-- Pledgers table -->
+                <div class="eight wide column">
+                    <table class="ui striped right aligned table">
+                        <thead>
+                            <tr>
+                                <th class="left aligned">Pledger</th>
+                                <th>Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {%if pledges %}
+                                {% for pledge in pledges %}
+                                    <tr>
+                                        <td class="left aligned">
+                                            <a href="/userDetails/?user_id={{ pledge.pledger_id }}">{{ pledge.pledger_name }}</a>
+                                        </td>
+                                        <td>${{ pledge.amount }}</td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                <tr>
+                                    <td class="center aligned" colspan="2">No pledger yet</td>
+                                </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- Pledge segment -->
+                <div class="eight wide column">
+                    <div class="ui segment">
+                        <h4 class="ui header"><b>Target fund: {{ project.target_fund }}</b></h4>
+                        <h4 class="ui header"><b>Ends on: {{ project.end_date }}</b></h4>
+                        <div class="funded-bar-wrapper bg-grey">
+                            <div class="funded-bar bg-green" style="width: 60%"></div>
+                        </div>
+
+                        {% if user_id %}
+                            <br>
+                            <form class="ui form" action="/addFunding/?pid={{ project.pid }}" method="POST">
+                                {% csrf_token %}
+                                <div class="field">
+                                    <label for="amount">Amount to pledge</label>
+                                    <input type="number" name="amount" id="amount" placeholder="Amount to pledge">
+                                </div>
+                                <button type="submit" class="ui green button">Pledge</button>
+                            </form>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        {% if related %}
+            <!-- Related Projects -->
+            <div class="sixteen wide column">
+                <h2 class="ui header center aligned">Related Projects</h2>
+                <div class="ui four stackable cards">
+                    {% for project in related %}
+                        {% include 'project_card.html' %}
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
     </div>
 {% endblock %}

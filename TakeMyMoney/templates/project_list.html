@@ -42,21 +42,7 @@
         <!-- NOTE: remove the 'four stackable' and you'll have a fixed size stackable cards, but default to 3 in a row -->
         <div class="ui four stackable cards">
             {% for project in projects %}
-                <div class="teal card">
-                    <a class="image" href="/projectDetails/?pid={{ project.pid }}">
-                        <img src="{{ project.photo_url }}">
-                    </a>
-                    <div class="content">
-                        <a class="header" href="/projectDetails/?pid={{ project.pid }}">{{ project.title }}</a>
-                        <div class="meta">Ends on <b>{{ project.end_date }}</b></div>
-                        <div class="description">{{ project.description }}</div>
-                    </div>
-                    <div class="extra content">
-                        <div class="right floated">
-                            Target fund: <b>${{ project.target_fund }}</b>
-                        </div>
-                    </div>
-                </div>
+                {% include 'project_card.html' %}
             {% endfor %}
         </div>
 

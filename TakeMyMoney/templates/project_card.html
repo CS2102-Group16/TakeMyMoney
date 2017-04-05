@@ -1,0 +1,17 @@
+<div class="teal card">
+    {% if project.photo_url %}
+        <a class="image" href="/projectDetails/?pid={{ project.pid }}">
+            <img src="{{ project.photo_url }}">
+        </a>
+    {% endif %}
+    <div class="content">
+        <a class="header" href="/projectDetails/?pid={{ project.pid }}">{{ project.title }}</a>
+        <div class="meta">Ends on <b>{{ project.end_date }}</b></div>
+        <div class="description">{{ project.description }}</div>
+    </div>
+    <div class="extra content">
+        <div class="right floated">
+            Target fund: <b>${{ project.target_fund }}</b>
+        </div>
+    </div>
+</div>

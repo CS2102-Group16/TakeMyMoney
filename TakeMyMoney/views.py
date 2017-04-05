@@ -310,7 +310,7 @@ def project_details(request):
 
     with connection.cursor() as cursor:
         try:
-            related_project_attrs = ['title', 'description']
+            related_project_attrs = ['title', 'description', 'target_fund', 'photo_url', 'start_date', 'end_date', 'pid']
             # The subquery selects the pids of projects that are not the current one (left
             # side of the WHERE) and shares the same category as the current one.
             sql = 'SELECT ' + ', '.join(['p.' + project_attr for project_attr in related_project_attrs]) + (
