@@ -24,18 +24,20 @@
     <!-- TODO: Should show only projects that has started -> do an SQL for this -->
     <div class="ui grid">
         <div class="sixteen wide column">
-            <h1>Project list</h1>
-            <div class="dropdown">
-                <button class="btn btn-default dropdown-toggle" type="button" id="categoryMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <h1 class="ui header">Project list</h1>
+            <div class="ui compact menu">
+                <div class="ui simple dropdown item">
                     Category
-                    <span class="caret"></span>
-                </button>
-                <ul class="dropdown-menu" id="categoryList" aria-labelledby="categoryMenu">
-                    <li><a href="/projectList/?category=All">All</a></li>
-                    {% for category in categories %}
-                    <li><a href="/projectList/?category={{ category.name }}">{{ category.name }}</a></li>
-                    {% endfor %}
-                </ul>
+                    <i class="dropdown icon"></i>
+                    <div class="menu">
+                        <div class="item"><a href="/projectList/?category=All">All</a></div>
+                        {% for category in categories %}
+                            <div class="item">
+                                <a href="/projectList/?category={{ category.name }}">{{ category.name }}</a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
             </div>
         </div>
 
