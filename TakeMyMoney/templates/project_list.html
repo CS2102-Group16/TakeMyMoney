@@ -30,11 +30,9 @@
                     Category
                     <i class="dropdown icon"></i>
                     <div class="menu">
-                        <div class="item"><a href="/projectList/?category=All">All</a></div>
+                        <a class="item" href="/projectList/?category=All">All</a>
                         {% for category in categories %}
-                            <div class="item">
-                                <a href="/projectList/?category={{ category.name }}">{{ category.name }}</a>
-                            </div>
+                            <a class="item" href="/projectList/?category={{ category.name }}">{{ category.name }}</a>
                         {% endfor %}
                     </div>
                 </div>
