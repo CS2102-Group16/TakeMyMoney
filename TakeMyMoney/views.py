@@ -243,7 +243,7 @@ def store_project(request):
             messages.add_message(request, messages.ERROR, ErrorMessages.ADD_CATEGORIES_FAIL)
             return redirect('/addNewProject/')
 
-    return redirect('/addNewProject/')
+    return redirect('/')
 
 
 def project_details(request):
