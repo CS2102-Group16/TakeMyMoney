@@ -209,7 +209,7 @@ def store_project(request):
             print e
             return redirect('/addNewProject/')
 
-    return redirect('/addNewProject/')
+    return redirect('/')
 
 
 def search_project(request):
