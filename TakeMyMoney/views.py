@@ -308,7 +308,8 @@ def project_details(request):
             cursor.execute(sql, args)
             rows = cursor.fetchall()
             funded_amount = rows[0][0] or 0
-            context['funded_percentage'] = min(funded_amount * 100.0 / context['project']['target_fund'], 100.0)
+            context['funded_amount'] = funded_amount
+            context['funded_percentage'] = int(round(min(funded_amount * 100.0 / context['project']['target_fund'], 100.0)))
         except:
             messages.add_message(request, messages.ERROR, ErrorMessages.UNKNOWN)
             return redirect('/projectList/')

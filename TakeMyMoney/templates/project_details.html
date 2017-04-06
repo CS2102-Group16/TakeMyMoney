@@ -13,21 +13,7 @@
             width: 100%;
             overflow: auto;
         }
-        .funded-bar-wrapper {
-            overflow: hidden;
-            height: 12px;
-            border-radius: 6px;
-        }
-        .funded-bar {
-            height: 100%;
-            border-radius: 6px;
-        }
-        .bg-grey {
-            background-color: #F1EEEA;
-        }
-        .bg-green {
-            background-color: #2BDE73;
-        }
+
         .category {
             text-decoration: underline;
         }
@@ -98,10 +84,13 @@
                 <!-- Pledge segment -->
                 <div class="eight wide column">
                     <div class="ui segment">
-                        <h4 class="ui header"><b>Target fund: {{ project.target_fund }}</b></h4>
+                        <h4 class="ui header"><b>Target fund: ${{ project.target_fund }}</b></h4>
                         <h4 class="ui header"><b>Ends on: {{ project.end_date }}</b></h4>
-                        <div class="funded-bar-wrapper bg-grey">
-                            <div class="funded-bar bg-green" style="width: {{ funded_percentage }}%"></div>
+                        <div class="ui progress success">
+                            <div class="bar" style="width: {{ funded_percentage }}%">
+                                <div class="progress">{{ funded_percentage }}%</div>
+                            </div>
+                            <div class="label">Funded: ${{funded_amount}}</div>
                         </div>
 
                         {% if user_id %}
