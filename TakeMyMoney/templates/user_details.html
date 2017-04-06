@@ -2,6 +2,14 @@
 
 {% block title %}Details of {{ user_name }}{% endblock %}
 
+{% block style %}
+<style>
+    .list-header {
+        margin-top: 10px !important;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="ui card centered">
     <div class="content">
@@ -23,5 +31,23 @@
             </span>
         </div>
     {% endif %}
+</div>
+<div class="ui grid">
+    <div class="sixteen wide column">
+        <h1 class="ui header center aligned list-header">Owned Projects</h1>
+        <div class="ui four stackable cards">
+            {% for project in owned_projects %}
+                {% include 'project_card.html' %}
+            {% endfor %}
+        </div>
+    </div>
+    <div class="sixteen wide column">
+        <h1 class="ui header center aligned list-header">Pledged Projects</h1>
+        <div class="ui four stackable cards">
+            {% for project in pledged_projects %}
+                {% include 'project_card.html' %}
+            {% endfor %}
+        </div>
+    </div>
 </div>
 {% endblock %}

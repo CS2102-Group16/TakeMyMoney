@@ -66,45 +66,12 @@ def authorize_modify_project(context, target_pid):
         return row is not None
 
 
-# TODO: The function is too messy. Clean it up
 def project_list(request):
     context = dict()
     inject_user_data(request, context)
     filtering = request.GET.get('filter', None)
 
-    if filtering == 'owned' and 'user_id' in context:
-        with connection.cursor() as cursor:
-            try:
-                project_attrs = ['title', 'description', 'photo_url', 'target_fund', 'start_date', 'end_date', 'pid', 'category']
-                cursor.execute("SELECT p.title, p.description, p.photo_url, p.target_fund, p.start_date, p.end_date, p.pid,"
-                               " string_agg(pc.category_name, ', ') FROM projects p"
-                               " LEFT OUTER JOIN projects_categories pc ON pc.pid = p.pid"
-                               " WHERE p.user_id = %s"
-                               " GROUP BY p.pid"
-                               " ORDER BY p.title ASC" % context['user_id'])
-                rows = cursor.fetchall()
-                projects = Helper.db_rows_to_dict(project_attrs, rows)
-            except:
-                messages.add_message(request, messages.ERROR, ErrorMessages.UNKNOWN)
-                return redirect('/projectList/')
-
-    elif filtering == 'pledged' and 'user_id' in context:
-        with connection.cursor() as cursor:
-            try:
-                project_attrs = ['title', 'description', 'photo_url', 'target_fund', 'start_date', 'end_date', 'pid', 'category']
-                cursor.execute("SELECT p.title, p.description, p.photo_url, p.target_fund, p.start_date, p.end_date, p.pid,"
-                               " string_agg(pc.category_name, ', ') FROM projects p"
-                               " LEFT OUTER JOIN projects_categories pc ON pc.pid = p.pid"
-                               " INNER JOIN funding f ON p.pid = f.pid AND f.user_id = %s"
-                               " GROUP BY p.pid"
-                               " ORDER BY p.title ASC" % context['user_id'])
-                rows = cursor.fetchall()
-                projects = Helper.db_rows_to_dict(project_attrs, rows)
-            except:
-                messages.add_message(request, messages.ERROR, ErrorMessages.UNKNOWN)
-                return redirect('/projectList/')
-
-    elif filtering == 'search' and 'search' in request.POST:
+    if filtering == 'search' and 'search' in request.POST:
         search_input = request.POST['search']
 
         with connection.cursor() as cursor:
@@ -725,6 +692,39 @@ def user_details(request):
         except:
             messages.add_message(request, messages.ERROR, ErrorMessages.UNKNOWN)
             return redirect('/')
+
+    with connection.cursor() as cursor:
+        try:
+            project_attrs = ['title', 'description', 'photo_url', 'target_fund', 'start_date', 'end_date', 'pid',
+                             'category']
+            cursor.execute("SELECT p.title, p.description, p.photo_url, p.target_fund, p.start_date, p.end_date, p.pid,"
+                           " string_agg(pc.category_name, ', ') FROM projects p"
+                           " LEFT OUTER JOIN projects_categories pc ON pc.pid = p.pid"
+                           " WHERE p.user_id = %s"
+                           " GROUP BY p.pid"
+                           " ORDER BY p.title ASC" % context['target_id'])
+            rows = cursor.fetchall()
+            context['owned_projects'] = Helper.db_rows_to_dict(project_attrs, rows)
+        except:
+            messages.add_message(request, messages.ERROR, ErrorMessages.UNKNOWN)
+            return redirect('/projectList/')
+
+    with connection.cursor() as cursor:
+        try:
+            project_attrs = ['title', 'description', 'photo_url', 'target_fund', 'start_date', 'end_date', 'pid',
+                             'category']
+            cursor.execute("SELECT p.title, p.description, p.photo_url, p.target_fund, p.start_date, p.end_date, p.pid,"
+                           " string_agg(pc.category_name, ', ') FROM projects p"
+                           " LEFT OUTER JOIN projects_categories pc ON pc.pid = p.pid"
+                           " INNER JOIN funding f ON p.pid = f.pid"
+                           " WHERE f.user_id = %s"
+                           " GROUP BY p.pid"
+                           " ORDER BY p.title ASC" % context['target_id'])
+            rows = cursor.fetchall()
+            context['pledged_projects'] = Helper.db_rows_to_dict(project_attrs, rows)
+        except:
+            messages.add_message(request, messages.ERROR, ErrorMessages.UNKNOWN)
+            return redirect('/projectList/')
 
     context['me'] = (str(user_id) == str(context['user_id']))
 
