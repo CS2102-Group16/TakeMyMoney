@@ -25,23 +25,29 @@
                     </tr>
                 </thead>
                 <tbody>
-                {% for log in logs %}
+                {% if logs %}
+                    {% for log in logs %}
+                        <tr>
+                            <td>{{ log.transaction_date|date:'r' }} </td>
+                            <td><a href="/projectDetails/?pid={{ log.pid }}">{{ log.pid }}</a></td>
+                            <td>{{ log.operation }}</td>
+                            <td>{{ log.prev_title|default:'-' }}</td>
+                            <td>{{ log.next_title|default:'-' }}</td>
+                            <td>{{ log.prev_description|default:'-' }}</td>
+                            <td>{{ log.next_description|default:'-' }}</td>
+                            <td>{% if log.prev_target_fund is not None %}${% endif %}{{ log.prev_target_fund|default:'-' }}</td>
+                            <td>{% if log.next_target_fund is not None %}${% endif %}{{ log.next_target_fund|default:'-' }}</td>
+                            <td>{{ log.prev_start_date|default:'-' }}</td>
+                            <td>{{ log.next_start_date|default:'-' }}</td>
+                            <td>{{ log.prev_end_date|default:'-' }}</td>
+                            <td>{{ log.next_end_date|default:'-' }}</td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
                     <tr>
-                        <td>{{ log.transaction_date|date:'r' }} </td>
-                        <td><a href="/projectDetails/?pid={{ log.pid }}">{{ log.pid }}</a></td>
-                        <td>{{ log.operation }}</td>
-                        <td>{{ log.prev_title|default:'-' }}</td>
-                        <td>{{ log.next_title|default:'-' }}</td>
-                        <td>{{ log.prev_description|default:'-' }}</td>
-                        <td>{{ log.next_description|default:'-' }}</td>
-                        <td>{% if log.prev_target_fund is not None %}${% endif %}{{ log.prev_target_fund|default:'-' }}</td>
-                        <td>{% if log.next_target_fund is not None %}${% endif %}{{ log.next_target_fund|default:'-' }}</td>
-                        <td>{{ log.prev_start_date|default:'-' }}</td>
-                        <td>{{ log.next_start_date|default:'-' }}</td>
-                        <td>{{ log.prev_end_date|default:'-' }}</td>
-                        <td>{{ log.next_end_date|default:'-' }}</td>
+                        <td colspan="13" class="center aligned">No project log</td>
                     </tr>
-                {% endfor %}
+                {% endif %}
                 </tbody>
             </table>
         </div>
