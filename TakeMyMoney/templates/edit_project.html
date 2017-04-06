@@ -21,11 +21,11 @@
             </div>
             <div class="form-group">
                 <label for="start_date">Funding Start</label>
-                <input type="text" class="form-control" name="start_date" id="start_date" placeholder="For example: 2017-8-30" value="{{ start_date }}">
+                <input type="date" class="form-control" name="start_date" id="start_date" value="{{ start_date|date:'Y-m-d' }}">
             </div>
             <div class="form-group">
                 <label for="end_date">Funding Ends</label>
-                <input type="text" class="form-control" name="end_date" id="end_date" placeholder="For example: 2017-9-30" value="{{ end_date }}">
+                <input type="date" class="form-control" name="end_date" id="end_date" value="{{ end_date|date:'Y-m-d' }}">
             </div>
             <div class="form-group">
                 <label> Categories </label>
