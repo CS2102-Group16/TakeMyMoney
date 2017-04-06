@@ -101,7 +101,7 @@
                         <h4 class="ui header"><b>Target fund: {{ project.target_fund }}</b></h4>
                         <h4 class="ui header"><b>Ends on: {{ project.end_date }}</b></h4>
                         <div class="funded-bar-wrapper bg-grey">
-                            <div class="funded-bar bg-green" style="width: 60%"></div>
+                            <div class="funded-bar bg-green" style="width: {{ funded_percentage }}%"></div>
                         </div>
 
                         {% if user_id %}

@@ -301,6 +301,18 @@ def project_details(request):
             messages.add_message(request, messages.ERROR, ErrorMessages.UNKNOWN)
             return redirect('/projectList/')
 
+    with connection.cursor() as cursor:
+        try:
+            sql = 'SELECT sum(f.amount) FROM funding f WHERE f.pid = %s'
+            args = (pid, )
+            cursor.execute(sql, args)
+            rows = cursor.fetchall()
+            funded_amount = rows[0][0] or 0
+            context['funded_percentage'] = min(funded_amount * 100.0 / context['project']['target_fund'], 100.0)
+        except:
+            messages.add_message(request, messages.ERROR, ErrorMessages.UNKNOWN)
+            return redirect('/projectList/')
+
     return render(request, 'project_details.html', context=context)
 
 
