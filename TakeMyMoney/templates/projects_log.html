@@ -3,43 +3,47 @@
 {% block title %}Take My Money{% endblock %}
 
 {% block content %}
-    <div class="container">
-        <h1>Projects Log</h1>
-        <table class="table">
-            <thead>
-                <th>Transaction Time</th>
-                <th>pid</th>
-                <th>Action</th>
-                <th>Prev. Title</th>
-                <th>New Title</th>
-                <th>Prev. Description</th>
-                <th>New Description</th>
-                <th>Prev. Target</th>
-                <th>New Target</th>
-                <th>Prev. Start Date</th>
-                <th>New Start Date</th>
-                <th>Prev. End Date</th>
-                <th>New End Date</th>
-            </thead>
-            <tbody>
-            {% for log in logs %}
-            <tr>
-                <td>{{ log.transaction_date|date:'r' }} </td>
-                <td><a href="/projectDetails/?pid={{ log.pid }}">{{ log.pid }}</a></td>
-                <td>{{ log.operation }}</td>
-                <td>{{ log.prev_title|default:'-' }}</td>
-                <td>{{ log.next_title|default:'-' }}</td>
-                <td>{{ log.prev_description|default:'-' }}</td>
-                <td>{{ log.next_description|default:'-' }}</td>
-                <td>{% if log.prev_target_fund is not None %}${% endif %}{{ log.prev_target_fund|default:'-' }}</td>
-                <td>{% if log.next_target_fund is not None %}${% endif %}{{ log.next_target_fund|default:'-' }}</td>
-                <td>{{ log.prev_start_date|default:'-' }}</td>
-                <td>{{ log.next_start_date|default:'-' }}</td>
-                <td>{{ log.prev_end_date|default:'-' }}</td>
-                <td>{{ log.next_end_date|default:'-' }}</td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+    <div class="ui grid">
+        <div class="sixteen wide column">
+            <h1 class="ui header center aligned">Projects Log</h1>
+            <table class="ui basic table">
+                <thead>
+                    <tr>
+                        <th>Transaction Time</th>
+                        <th>pid</th>
+                        <th>Action</th>
+                        <th>Prev. Title</th>
+                        <th>New Title</th>
+                        <th>Prev. Description</th>
+                        <th>New Description</th>
+                        <th>Prev. Target</th>
+                        <th>New Target</th>
+                        <th>Prev. Start Date</th>
+                        <th>New Start Date</th>
+                        <th>Prev. End Date</th>
+                        <th>New End Date</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for log in logs %}
+                    <tr>
+                        <td>{{ log.transaction_date|date:'r' }} </td>
+                        <td><a href="/projectDetails/?pid={{ log.pid }}">{{ log.pid }}</a></td>
+                        <td>{{ log.operation }}</td>
+                        <td>{{ log.prev_title|default:'-' }}</td>
+                        <td>{{ log.next_title|default:'-' }}</td>
+                        <td>{{ log.prev_description|default:'-' }}</td>
+                        <td>{{ log.next_description|default:'-' }}</td>
+                        <td>{% if log.prev_target_fund is not None %}${% endif %}{{ log.prev_target_fund|default:'-' }}</td>
+                        <td>{% if log.next_target_fund is not None %}${% endif %}{{ log.next_target_fund|default:'-' }}</td>
+                        <td>{{ log.prev_start_date|default:'-' }}</td>
+                        <td>{{ log.next_start_date|default:'-' }}</td>
+                        <td>{{ log.prev_end_date|default:'-' }}</td>
+                        <td>{{ log.next_end_date|default:'-' }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 {% endblock %}
