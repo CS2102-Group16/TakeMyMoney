@@ -602,7 +602,7 @@ def delete_project(request):
             messages.add_message(request, messages.ERROR, ErrorMessages.DELETE_PROJECT_FAIL)
             return redirect('/projectDetails/?pid=%s' % pid)
 
-    return redirect('/projectDetails/?pid=%s' % pid)
+    return redirect('/')
 
 
 def add_funding(request):
