@@ -38,23 +38,23 @@
     <div class="ui grid" id="project-details">
 
         <!-- Project details -->
-        <div class="sixteen wide column">
-            <h1 class="ui header center aligned">{{ project.title }}</h1>
-            <p style="text-align: center;">{{ project.description }}</p>
+        <div class="sixteen wide column center aligned">
+            <h1 class="ui header">{{ project.title }}</h1>
+            <p>{{ project.description }}</p>
             {% if project.photo_url %}
-                <img class="center-block" src="{{ project.photo_url }}"
+                <img class="centered" src="{{ project.photo_url }}"
                  alt="project.photo_url" id="project_img">
             {% endif %}
             <div class="ui segment">
                 <div class="ui two column grid">
-                    <div class="left floated column">
+                    <div class="left floated column left aligned middle aligned">
                         <label>Category: </label>
                         {% for project_cate in project_categories %}
                             <a class="ui teal label" href="/projectList/?category={{ project_cate.category_name }}">{{ project_cate.category_name }}</a>
                         {% endfor %}
                     </div>
 
-                    <div class="right floated column">
+                    <div class="right floated column right aligned middle aligned">
                         <!-- TODO: Need to check ownership -->
                         {% if user_id %}
                             <a href="/editProject/?pid={{ project.pid }}" class="ui orange button right floated" role="button">Edit</a>
