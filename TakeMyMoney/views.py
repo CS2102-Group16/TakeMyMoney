@@ -636,16 +636,21 @@ def store_funding(request):
     context = dict()
     inject_user_data(request, context)
     pid = request.GET.get('pid', None)
-    amount = request.GET.get('amount', None);
+    amount = request.GET.get('amount', None)
 
     if pid is None:
         messages.add_message(request, messages.ERROR, ErrorMessages.PROJECT_NOT_FOUND)
         return redirect('/')
-    if 'amount' is None:
+    if amount is None:
         messages.add_message(request, messages.ERROR, ErrorMessages.MISSING_DATA)
         return redirect('/projectDetails/?pid=%s' % pid)
     if 'user_id' not in context:
         messages.add_message(request, messages.ERROR, ErrorMessages.UNAUTHORIZED)
+        return redirect('/projectDetails/?pid=%s' % pid)
+    try:
+        int(amount)
+    except:
+        messages.add_message(request, messages.ERROR, ErrorMessages.MISSING_DATA)
         return redirect('/projectDetails/?pid=%s' % pid)
 
     with connection.cursor() as cursor:
@@ -660,16 +665,27 @@ def store_funding(request):
             return redirect('/projectDetails/?pid=%s' % pid)
 
     if funding_exists:
-        with connection.cursor() as cursor:
-            try:
-                sql = 'UPDATE funding SET amount = %s WHERE user_id = %s AND pid = %s'
-                args = (amount, context['user_id'], pid)
-                cursor.execute(sql, args)
-                connection.commit()
-            except:
-                messages.add_message(request, messages.ERROR, ErrorMessages.PLEDGE_FAIL)
-                return redirect('/projectDetails/?pid=%s' % pid)
-    else:
+        if int(amount) > 0:
+            with connection.cursor() as cursor:
+                try:
+                    sql = 'UPDATE funding SET amount = %s WHERE user_id = %s AND pid = %s'
+                    args = (amount, context['user_id'], pid)
+                    cursor.execute(sql, args)
+                    connection.commit()
+                except:
+                    messages.add_message(request, messages.ERROR, ErrorMessages.PLEDGE_FAIL)
+                    return redirect('/projectDetails/?pid=%s' % pid)
+        else:
+            with connection.cursor() as cursor:
+                try:
+                    sql = 'DELETE FROM funding WHERE user_id = %s AND pid = %s'
+                    args = (context['user_id'], pid)
+                    cursor.execute(sql, args)
+                    connection.commit()
+                except:
+                    messages.add_message(request, messages.ERROR, ErrorMessages.PLEDGE_FAIL)
+                    return redirect('/projectDetails/?pid=%s' % pid)
+    elif int(amount) > 0:
         with connection.cursor() as cursor:
             try:
                 sql = 'INSERT INTO funding (user_id, pid, amount) VALUES (%s, %s, %s)'
