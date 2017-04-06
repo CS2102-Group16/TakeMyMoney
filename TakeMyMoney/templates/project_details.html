@@ -70,11 +70,11 @@
             <div class="ui grid">
                 <!-- Pledgers table -->
                 <div class="eight wide column">
-                    <table class="ui striped right aligned table">
+                    <table class="ui striped table">
                         <thead>
                             <tr>
                                 <th class="left aligned">Pledger</th>
-                                <th>Amount</th>
+                                <th class="right aligned">Amount</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -84,7 +84,7 @@
                                         <td class="left aligned">
                                             <a href="/userDetails/?user_id={{ pledge.pledger_id }}">{{ pledge.pledger_name }}</a>
                                         </td>
-                                        <td>${{ pledge.amount }}</td>
+                                        <td class="right aligned">${{ pledge.amount }}</td>
                                     </tr>
                                 {% endfor %}
                             {% else %}
