@@ -227,11 +227,15 @@ def store_project(request):
 def project_details(request):
     context = dict()
     inject_user_data(request, context)
-    pid = request.GET['pid']
+    pid = request.GET.get('pid', None)
+
+    if pid is None:
+        messages.add_message(request, messages.ERROR, ErrorMessages.PROJECT_NOT_FOUND)
+        return redirect('/')
 
     with connection.cursor() as cursor:
         try:
-            project_attrs = ['title', 'description', 'target_fund', 'photo_url', 'start_date', 'end_date', 'pid']
+            project_attrs = ['title', 'description', 'target_fund', 'photo_url', 'start_date', 'end_date', 'pid', 'user_id']
             sql = 'SELECT ' + ', '.join(project_attrs) + ' FROM projects WHERE pid = %s'
             args = (pid, )
             cursor.execute(sql, args)
