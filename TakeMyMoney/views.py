@@ -50,7 +50,7 @@ def authorize_modify_project(context, target_pid):
     if 'user_id' not in context or 'role' not in context:
         return False
 
-    if context['role'] is 'admin':
+    if context['role'] == 'admin':
         # Admins are authorized to do anything they want.
         return True
 
@@ -603,7 +603,7 @@ def delete_project(request):
             messages.add_message(request, messages.ERROR, ErrorMessages.DELETE_PROJECT_FAIL)
             return redirect('/projectDetails/?pid=%s' % pid)
 
-    return redirect('/projectDetails/?pid=%s' % pid)
+    return redirect('/')
 
 
 def add_funding(request):

@@ -41,7 +41,7 @@ CREATE TABLE sessions(
 
 CREATE TABLE funding(
     user_id INTEGER REFERENCES users(user_id),
-    pid INTEGER REFERENCES projects(pid),
+    pid INTEGER REFERENCES projects(pid) ON UPDATE CASCADE ON DELETE CASCADE,
     amount INTEGER,
     PRIMARY KEY (user_id, pid)
 );
