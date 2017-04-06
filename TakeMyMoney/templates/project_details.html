@@ -35,9 +35,13 @@
                 <div class="ui two column grid">
                     <div class="left floated column left aligned middle aligned">
                         <label>Category: </label>
-                        {% for project_cate in project_categories %}
-                            <a class="ui teal label" href="/projectList/?category={{ project_cate.category_name }}">{{ project_cate.category_name }}</a>
-                        {% endfor %}
+                        {% if project_categories %}
+                            {% for project_cate in project_categories %}
+                                <a class="ui teal label" href="/projectList/?category={{ project_cate.category_name }}">{{ project_cate.category_name }}</a>
+                            {% endfor %}
+                        {% else %}
+                            None yet! Contact the <a href="/userDetails/?user_id={{ project.user_id }}">owner</a> if you know a suitable category for this project.
+                        {% endif %}
                     </div>
 
                     <div class="right floated column right aligned middle aligned">
