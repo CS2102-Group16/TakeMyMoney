@@ -2,40 +2,26 @@
 
 {% block title %}Details of {{ user_name }}{% endblock %}
 
-{% block style %}
-    <style>
-        .detail-group {
-            margin-top: 10px;
-        }
-        .user-name {
-            display: inline;
-        }
-        .user-email {
-            margin-left: 5px;
-        }
-        {% if role == 'admin' %}
-        .manage-button {
-            margin-top: 10px;
-        }
-        {% endif %}
-    </style>
-{% endblock %}
-
 {% block content %}
-<p class="container">
-    <h1 class="user-name">{{ target_name }}</h1>
-    <span class="user-email" id="email">({{ target_email }})</span>
-    {% if role == 'admin' %}
-    <div class="detail-group">
-        <label for="role">User role</label>
-        <div id="role">{{ target_role }}</div>
+<div class="ui card centered">
+    <div class="content">
+        <div class="header">{{ target_name }}</div>
+        <div class="meta">{{ target_email }}</div>
     </div>
-        {% if target_role != 'admin' %}
-        <a href="/makeAdmin/?user_id={{ target_id }}" class="btn btn-warning manage-button" role="button">Make Admin</a>
-        {% endif %}
-        {% if me %}
-        <a href="/revokeAdmin/" class="btn btn-warning manage-button" role="button">Revoke Admin</a>
-        {% endif %}
+    {% if role == 'admin' %}
+        <div class="extra content">
+            <span class="left floated">
+                <b>User role: {{ target_role }}</b>
+            </span>
+            <span class="right floated">
+                {% if target_role != 'admin' %}
+                    <a href="/makeAdmin/?user_id={{ target_id }}" class="ui orange button" role="button">Make Admin</a>
+                {% endif %}
+                {% if me %}
+                    <a href="/revokeAdmin/" class="ui orange button" role="button">Revoke Admin</a>
+                {% endif %}
+            </span>
+        </div>
     {% endif %}
 </div>
 {% endblock %}

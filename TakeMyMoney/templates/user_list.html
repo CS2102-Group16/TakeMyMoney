@@ -3,23 +3,27 @@
 {% block title %}User list{% endblock %}
 
 {% block content %}
-    <div class="container">
-        <h1>Take My Money's users</h1>
-        <table class="table">
-            <thead>
-                <th>User email</th>
-                <th>User id</th>
-                <th>Role</th>
-            </thead>
-            <tbody>
-            {% for user in users %}
-            <tr>
-                <td>{{ user.user_email }}</td>
-                <td><a href="/userDetails/?user_id={{ user.user_id }}">{{ user.user_id }}</a></td>
-                <td>{{ user.role }}</td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+    <div class="ui grid">
+        <div class="sixteen wide column">
+            <h1 class="ui header center aligned">Take My Money's users</h1>
+            <table class="ui teal striped table">
+                <thead>
+                    <tr>
+                        <th class="left aligned">User email</th>
+                        <th>Id</th>
+                        <th class="right aligned">Role</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                        <tr>
+                            <td class="left aligned">{{ user.user_email }}</td>
+                            <td><a href="/userDetails/?user_id={{ user.user_id }}">{{ user.user_id }}</a></td>
+                            <td class="right aligned">{{ user.role }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 {% endblock %}

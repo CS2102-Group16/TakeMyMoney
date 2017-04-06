@@ -3,25 +3,35 @@
 {% block title %}Role Log{% endblock %}
 
 {% block content %}
-    <div class="container">
-        <h1>User Role Log</h1>
-        <table class="table">
-            <thead>
-                <th>Transaction Time</th>
-                <th>User ID</th>
-                <th>Previous Role</th>
-                <th>New Role</th>
-            </thead>
-            <tbody>
-            {% for log in logs %}
-            <tr>
-                <td>{{ log.transaction_date|date:'r' }} </td>
-                <td><a href="/userDetails/?user_id={{ log.user_id }}">{{ log.user_id }}</a></td>
-                <td>{{ log.prev_role }}</td>
-                <td>{{ log.next_role }}</td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
+    <div class="ui grid">
+        <div class="sixteen wide column">
+            <h1 class="ui header center aligned">User Role Log</h1>
+            <table class="ui teal striped table">
+                <thead>
+                    <tr>
+                        <th>Transaction Time</th>
+                        <th>User ID</th>
+                        <th>Previous Role</th>
+                        <th>New Role</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% if logs %}
+                    {% for log in logs %}
+                        <tr>
+                            <td>{{ log.transaction_date|date:'r' }} </td>
+                            <td><a href="/userDetails/?user_id={{ log.user_id }}">{{ log.user_id }}</a></td>
+                            <td>{{ log.prev_role }}</td>
+                            <td>{{ log.next_role }}</td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="4" class="center aligned">No user log</td>
+                    </tr>
+                {% endif %}
+                </tbody>
+            </table>
+        </div>
     </div>
 {% endblock %}

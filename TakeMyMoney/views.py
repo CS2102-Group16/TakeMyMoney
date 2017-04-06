@@ -1,4 +1,5 @@
 from django.http import HttpResponse
+from django.core.paginator import Paginator, EmptyPage, InvalidPage
 from django.db import connection, IntegrityError
 from django.contrib import messages
 from django.shortcuts import render, redirect
@@ -65,6 +66,7 @@ def authorize_modify_project(context, target_pid):
         return row is not None
 
 
+# TODO: The function is too messy. Clean it up
 def project_list(request):
     context = dict()
     inject_user_data(request, context)
@@ -73,8 +75,8 @@ def project_list(request):
     if filtering == 'owned' and 'user_id' in context:
         with connection.cursor() as cursor:
             try:
-                project_attrs = ['title', 'description', 'target_fund', 'start_date', 'end_date', 'pid', 'category']
-                cursor.execute("SELECT p.title, p.description, p.target_fund, p.start_date, p.end_date, p.pid,"
+                project_attrs = ['title', 'description', 'photo_url', 'target_fund', 'start_date', 'end_date', 'pid', 'category']
+                cursor.execute("SELECT p.title, p.description, p.photo_url, p.target_fund, p.start_date, p.end_date, p.pid,"
                                " string_agg(pc.category_name, ', ') FROM projects p"
                                " LEFT OUTER JOIN projects_categories pc ON pc.pid = p.pid"
                                " WHERE p.user_id = %s"
@@ -82,7 +84,6 @@ def project_list(request):
                                " ORDER BY p.title ASC" % context['user_id'])
                 rows = cursor.fetchall()
                 projects = Helper.db_rows_to_dict(project_attrs, rows)
-                context['projects'] = projects
             except:
                 messages.add_message(request, messages.ERROR, ErrorMessages.UNKNOWN)
                 return redirect('/projectList/')
@@ -90,8 +91,8 @@ def project_list(request):
     elif filtering == 'pledged' and 'user_id' in context:
         with connection.cursor() as cursor:
             try:
-                project_attrs = ['title', 'description', 'target_fund', 'start_date', 'end_date', 'pid', 'category']
-                cursor.execute("SELECT p.title, p.description, p.target_fund, p.start_date, p.end_date, p.pid,"
+                project_attrs = ['title', 'description', 'photo_url', 'target_fund', 'start_date', 'end_date', 'pid', 'category']
+                cursor.execute("SELECT p.title, p.description, p.photo_url, p.target_fund, p.start_date, p.end_date, p.pid,"
                                " string_agg(pc.category_name, ', ') FROM projects p"
                                " LEFT OUTER JOIN projects_categories pc ON pc.pid = p.pid"
                                " INNER JOIN funding f ON p.pid = f.pid AND f.user_id = %s"
@@ -99,7 +100,6 @@ def project_list(request):
                                " ORDER BY p.title ASC" % context['user_id'])
                 rows = cursor.fetchall()
                 projects = Helper.db_rows_to_dict(project_attrs, rows)
-                context['projects'] = projects
             except:
                 messages.add_message(request, messages.ERROR, ErrorMessages.UNKNOWN)
                 return redirect('/projectList/')
@@ -109,10 +109,10 @@ def project_list(request):
 
         with connection.cursor() as cursor:
             try:
-                project_attrs = ['title', 'description', 'target_fund', 'start_date', 'end_date', 'pid', 'category']
+                project_attrs = ['title', 'description', 'photo_url', 'target_fund', 'start_date', 'end_date', 'pid', 'category']
                 # Hidden dragon, crouching input sanitization.
                 args = ('%' + search_input + '%', '%' + search_input + '%')
-                cursor.execute("SELECT p.title, p.description, p.target_fund, p.start_date, p.end_date, p.pid,"
+                cursor.execute("SELECT p.title, p.description, p.photo_url, p.target_fund, p.start_date, p.end_date, p.pid,"
                                " string_agg(pc.category_name, ', ') FROM projects p"
                                " LEFT OUTER JOIN projects_categories pc ON pc.pid = p.pid"
                                " WHERE p.title ILIKE %s OR p.description ILIKE %s"
@@ -120,7 +120,6 @@ def project_list(request):
                                " ORDER BY p.title", args)
                 rows = cursor.fetchall()
                 projects = Helper.db_rows_to_dict(project_attrs, rows)
-                context['projects'] = projects
             except:
                 messages.add_message(request, messages.ERROR, ErrorMessages.UNKNOWN)
                 return redirect('/projectList/')
@@ -137,8 +136,8 @@ def project_list(request):
                 messages.add_message(request, messages.ERROR, ErrorMessages.UNKNOWN)
                 return redirect('/projectList/')
 
-        project_attrs = ['title', 'description', 'target_fund', 'start_date', 'end_date', 'pid', 'category']
-        query_str = "SELECT p.title, p.description, p.target_fund, p.start_date, p.end_date, p.pid," \
+        project_attrs = ['title', 'description', 'photo_url', 'target_fund', 'start_date', 'end_date', 'pid', 'category']
+        query_str = "SELECT p.title, p.description, p.photo_url, p.target_fund, p.start_date, p.end_date, p.pid," \
                     " string_agg(pc.category_name, ', ') FROM projects p" \
                     " LEFT OUTER JOIN projects_categories pc ON p.pid = pc.pid" \
                     " GROUP BY p.pid" \
@@ -147,12 +146,12 @@ def project_list(request):
         if 'category' in request.GET:
             category_name = request.GET['category']
             if not category_name == 'All':
-                query_str = "SELECT p.title, p.description, p.target_fund, p.start_date, p.end_date, p.pid," \
+                query_str = "SELECT p.title, p.description, p.photo_url, p.target_fund, p.start_date, p.end_date, p.pid," \
                             " string_agg(pc.category_name, ', ') FROM projects p" \
                             " NATURAL JOIN projects_categories pc" \
                             " GROUP BY p.pid" \
                             " EXCEPT" \
-                            " SELECT p2.title, p2.description, p2.target_fund, p2.start_date, p2.end_date, p2.pid," \
+                            " SELECT p2.title, p2.description, p2.photo_url, p2.target_fund, p2.start_date, p2.end_date, p2.pid," \
                             " string_agg(pc2.category_name, ', ')" \
                             " FROM projects p2" \
                             " NATURAL JOIN projects_categories pc2" \
@@ -164,10 +163,22 @@ def project_list(request):
                 cursor.execute(query_str)
                 rows = cursor.fetchall()
                 projects = Helper.db_rows_to_dict(project_attrs, rows)
-                context['projects'] = projects
             except:
                 messages.add_message(request, messages.ERROR, ErrorMessages.UNKNOWN)
                 return redirect('/projectList/')
+
+    paginator = Paginator(projects, 20)  # Show 20 projects per page
+
+    page = request.GET.get('page')
+    try:
+        projects_in_page = paginator.page(page)
+    except EmptyPage:
+        projects_in_page = paginator.page(paginator.num_pages)
+    except InvalidPage:
+        projects_in_page = paginator.page(1)
+
+    context['projects'] = projects_in_page.object_list
+    context['page'] = projects_in_page
 
     return render(request, 'project_list.html', context=context)
 
@@ -299,7 +310,7 @@ def project_details(request):
 
     with connection.cursor() as cursor:
         try:
-            related_project_attrs = ['title', 'description']
+            related_project_attrs = ['title', 'description', 'target_fund', 'photo_url', 'start_date', 'end_date', 'pid']
             # The subquery selects the pids of projects that are not the current one (left
             # side of the WHERE) and shares the same category as the current one.
             sql = 'SELECT ' + ', '.join(['p.' + project_attr for project_attr in related_project_attrs]) + (
@@ -631,6 +642,7 @@ def add_funding(request):
         'amount': amount,
         'pid': pid,
     }
+    inject_user_data(request, context)
 
     return render(request, 'add_funding.html', context=context)
 
@@ -639,7 +651,7 @@ def store_funding(request):
     context = dict()
     inject_user_data(request, context)
     pid = request.GET.get('pid', None)
-    amount = request.GET['amount', None]
+    amount = request.GET.get('amount', None);
 
     if pid is None:
         messages.add_message(request, messages.ERROR, ErrorMessages.PROJECT_NOT_FOUND)

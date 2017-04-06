@@ -3,25 +3,26 @@
 {% block title %}Add funding{% endblock %}
 
 {% block style %}
-    <style>
-        .confirm-buttons {
-            width: 100px;
-            margin-top: 20px;
-        }
-    </style>
+<style>
+    .ui.form.confirm-pledge, .confirm-p {
+        text-align: center;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
 
-<div class="container">
-    <h1 class="text-center">Confirm pledge</h1>
-    <p class="text-center">You will be pledging ${{ amount }} for the project {{ title }}.</p>
-    <div class="center-block confirm-buttons">
-        <form action="/storeFunding/?pid={{ pid }}&amount={{ amount }}" method="POST">
-            {% csrf_token %}
-            <button type="submit" class="btn btn-success pull-left">Yes</button>
-        </form>
-        <a href="/projectDetails/?pid={{ pid }}" class="btn btn-danger pull-right" role="button">No</a>
+<div class="ui grid">
+    <div class="ten wide column centered">
+        <div class="ui segment">
+            <h1 class="ui header center aligned">Confirm pledge</h1>
+            <p class="confirm-p">You will be pledging <b>${{ amount }} </b>for the project <b>{{ title }}</b>.</p>
+            <form class="ui form confirm-pledge" action="/storeFunding/?pid={{ pid }}&amount={{ amount }}" method="POST">
+                {% csrf_token %}
+                    <a href="/projectDetails/?pid={{ pid }}" class="ui red button" role="button">No</a>
+                    <button type="submit" class="ui green button">Yes</button>
+            </form>
+        </div>
     </div>
 </div>
 {% endblock %}

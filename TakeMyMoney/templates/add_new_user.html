@@ -3,35 +3,52 @@
 {% block title %}Sign Up{% endblock %}
 
 {% block content %}
-<div class="container">
-    <h1>Sign up</h1>
-    <form action="/storeUser/" method="POST">
-        {% csrf_token %}
-        <div class="form-group">
-            <label for="name">Name</label>
-            <input type="text" class="form-control" name="name" id="name" placeholder="John Doe" required>
-        </div>
+<div class="ui grid">
+    <div class="ten wide column centered">
 
-        <div class="form-group">
-            <label for="user_email">Email address</label>
-            <input type="text" class="form-control" name="user_email" id="user_email" placeholder="user@example.com" required>
-        </div>
+        <h1 class="ui header centered">Sign up</h1>
 
-        <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" class="form-control" name="password" id="password" placeholder="Password" required>
-        </div>
-        <div class="form-group">
-            <label for="confirm_password">Confirm Password</label>
-            <input type="password" class="form-control" name="confirm_password" id="confirm_password" placeholder="Password" required>
-            <!-- code for password validation not working
+        <form class="ui form" action="/storeUser/" method="POST">
+            {% csrf_token %}
+            <div class="ui stacked segment">
 
-            <input type="text" class="form-control" name="confirm_password" id="confirm_password" placeholder="eg123" onkeyup="checkPass(); return false;">
-            <span id="confirmMessage" class="confirmMessage"></span>
+                <div class="field">
+                    <label for="name">Name</label>
+                    <input type="text" name="name" id="name" placeholder="John Doe" required>
+                </div>
 
-            -->
-        </div>
-        <button type="submit" class="btn btn-primary pull-right">Confirm</button>
-    </form>
+                <div class="field">
+                    <label for="user_email">Email address</label>
+                    <div class="ui left icon input">
+                        <i class="user icon"></i>
+                        <input type="text" name="user_email" id="user_email" placeholder="user@example.com" required>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label for="password">Password</label>
+                    <div class="ui left icon input">
+                        <i class="lock icon"></i>
+                        <input type="password" name="password" id="password" placeholder="Password" required>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label for="confirm_password">Confirm Password</label>
+                    <div class="ui left icon input">
+                        <i class="lock icon"></i>
+                        <input type="password" name="confirm_password" id="confirm_password" placeholder="Confirm Password" required>
+                    </div>
+                </div>
+                <!-- code for password validation not working
+
+                <input type="text" name="confirm_password" id="confirm_password" placeholder="eg123" onkeyup="checkPass(); return false;">
+                <span id="confirmMessage" class="confirmMessage"></span>
+
+                -->
+                <button type="submit" class="ui fluid large teal submit button">Sign up</button>
+            </div>
+        </form>
+    </div>
 </div>
 {% endblock %}

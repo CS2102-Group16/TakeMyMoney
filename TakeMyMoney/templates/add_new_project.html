@@ -4,57 +4,58 @@
 
 {% block content %}
 
-{% load static %}
-<script type="text/javascript" src= "{% static '/date_validation.js' %}"></script>
-    <div class="container">
-        <h1>Add new project</h1>
-        <form action="/storeProject/" method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-            <div class="form-group">
-                <label for="photo">Project photo</label>
-                <input type="file" class="form-control" name="photo" id="photo">
-            </div>
-            <div class="form-group">
-                <label for="title">Title</label>
-                <input type="text" class="form-control" name="title" id="title" placeholder="Example input">
-            </div>
-            <div class="form-group">
-                <label form="description">Description</label>
-                <textarea class="form-control" name="description" id="description" placeholder="Example input"></textarea>
-            </div>
-            <div class="form-group">
-                <label for="target_fund">Target Fund</label>
-                <input type="text" class="form-control" name="target_fund" id="target_fund" placeholder="Example input">
-            </div>
-            <div class="add-project-form-alert" id="date_checker" style="float:right;">
-            </div>
-            <div class="form-group">
-                <label for="start_date">Funding Start</label>
-                <input type="date" class="form-control" name="start_date" id="start_date"
-                onchange="date_validation();">
-            </div>
+    {% load static %}
+    <script type="text/javascript" src= "{% static '/date_validation.js' %}"></script>
 
-            <div class="form-group">
-                <label for="end_date">Funding End</label>
-                <input type="date" class="form-control" name="end_date" id="end_date"
-                onchange="date_validation();">
-            </div>
-
-            <div class="form-group">
-                <label> Categories </label>
-                <div class="row">
-                    <div class="col-md-6">
-                    {% for category in categories %}
-                     <div class="checkbox">
-                       <label>
-                         <input type="checkbox" name="category" value="{{ category.name }}">{{ category.name }}
-                       </label>
-                     </div>
-                    {% endfor %}
+    <div class="ui grid">
+        <div class="twelve wide column centered">
+            <h1 class="ui header center aligned">Add new project</h1>
+            <div class="ui teal clearing segment">
+                <form class="ui form add-project" action="/storeProject/" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="ui error message" id="date_error">
+                        <p>Funding start date must be before end date</p>
                     </div>
-                </div>
+                    <div class="field">
+                        <label for="photo">Project photo</label>
+                        <input type="file" name="photo" id="photo">
+                    </div>
+                    <div class="field">
+                        <label for="title">Title</label>
+                        <input type="text" name="title" id="title" placeholder="Example input">
+                    </div>
+                    <div class="field">
+                        <label for="description">Description</label>
+                        <textarea name="description" id="description" placeholder="Example input"></textarea>
+                    </div>
+                    <div class="field">
+                        <label for="target_fund">Target Fund</label>
+                        <input type="text" name="target_fund" id="target_fund" placeholder="Example input">
+                    </div>
+                    <div class="field">
+                        <label for="start_date">Funding Start</label>
+                        <input type="date" name="start_date" id="start_date"
+                            onchange="date_validation();">
+                    </div>
+                    <div class="field">
+                        <label for="end_date">Funding End</label>
+                            <input type="date" name="end_date" id="end_date"
+                            onchange="date_validation();">
+                    </div>
+                    <div class="grouped fields">
+                        <label>Categories</label>
+                            {% for category in categories %}
+                                <div class="field">
+                                    <div class="ui checkbox">
+                                        <input type="checkbox" name="category" value="{{ category.name }}">
+                                        <label>{{ category.name }}</label>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                    </div>
+                    <button class="ui button blue right floated" type="submit" id="submit">Add project</button>
+                </form>
             </div>
-            <button type="submit" class="btn btn-primary pull-right">Add Project</button>
-        </form>
+        </div>
     </div>
 {% endblock %}

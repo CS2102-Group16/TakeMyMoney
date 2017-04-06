@@ -3,49 +3,53 @@
 {% block title %}Take My Money{% endblock %}
 
 {% block content %}
-    <div class="container">
-        <h1>Edit project</h1>
-        <form action="/updateProject/?pid={{ pid }}" method="POST">
-            {% csrf_token %}
-            <div class="form-group">
-                <label for="title">Title</label>
-                <input type="text" class="form-control" name="title" id="title" placeholder="Your project title" value="{{ title }}">
-            </div>
-            <div class="form-group">
-                <label form="description">Description</label>
-                <textarea class="form-control" name="description" id="description" placeholder="Describe your project">{{ description }}</textarea>
-            </div>
-            <div class="form-group">
-                <label for="target_fund">Target Fund</label>
-                <input type="text" class="form-control" name="target_fund" id="target_fund" placeholder="(in dollars)" value="{{ target_fund }}">
-            </div>
-            <div class="form-group">
-                <label for="start_date">Funding Start</label>
-                <input type="date" class="form-control" name="start_date" id="start_date" value="{{ start_date|date:'Y-m-d' }}">
-            </div>
-            <div class="form-group">
-                <label for="end_date">Funding Ends</label>
-                <input type="date" class="form-control" name="end_date" id="end_date" value="{{ end_date|date:'Y-m-d' }}">
-            </div>
-            <div class="form-group">
-                <label> Categories </label>
-                <div class="row">
-                    <div class="col-md-6">
-                    {% for category in categories %}
-                     <div class="checkbox">
-                       <label>
-                         {% if category in projects_categories %}
-                         <input type="checkbox" name="category" value="{{ category.name }}" checked> {{ category.name }}
-                         {% else %}
-                         <input type="checkbox" name="category" value="{{ category.name }}"> {{ category.name }}
-                         {% endif %}
-                       </label>
-                     </div>
-                    {% endfor %}
+    <div class="ui grid">
+        <div class="twelve wide column centered">
+            <h1 class="ui header center aligned">Edit project</h1>
+            <div class="ui teal clearing segment">
+                <form class="ui form edit-project" action="/updateProject/?pid={{ pid }}" method="POST">
+                    {% csrf_token %}
+                    <div class="field">
+                        <label for="title">Title</label>
+                        <input type="text" name="title" id="title" placeholder="Your project title" value="{{ title }}">
                     </div>
-                </div>
+                    <div class="field">
+                        <label for="description">Description</label>
+                        <textarea name="description" id="description" placeholder="Describe your project">{{ description }}</textarea>
+                    </div>
+                    <div class="field">
+                        <label for="target_fund">Target Fund</label>
+                        <input type="text" name="target_fund" id="target_fund" placeholder="(in dollars)" value="{{ target_fund }}">
+                    </div>
+                    <div class="field">
+                        <label for="start_date">Funding Start</label>
+                        <input type="date" class="form-control" name="start_date" id="start_date" value="{{ start_date|date:'Y-m-d' }}">
+                    </div>
+                    <div class="field">
+                        <label for="end_date">Funding Ends</label>
+                        <input type="date" class="form-control" name="end_date" id="end_date" value="{{ end_date|date:'Y-m-d' }}">
+                    </div>
+                    <div class="grouped fields">
+                        <label>Categories</label>
+                            {% for category in categories %}
+                                <div class="field">
+                                    {% if category in projects_categories %}
+                                        <div class="ui checked checkbox">
+                                            <input type="checkbox" name="category" value="{{ category.name }}" checked>
+                                            <label>{{ category.name }}</label>
+                                        </div>
+                                    {%else %}
+                                        <div class="ui checkbox">
+                                            <input type="checkbox" name="category" value="{{ category.name }}">
+                                            <label>{{ category.name }}</label>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            {% endfor %}
+                    </div>
+                    <button type="submit" class="ui button blue right floated">Edit Project</button>
+                </form>
             </div>
-            <button type="submit" class="btn btn-primary pull-right">Edit Project</button>
-        </form>
+        </div>
     </div>
 {% endblock %}

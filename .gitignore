@@ -95,3 +95,8 @@ ENV/
 
 # Supporting docs
 supporting_docs/
+
+
+# npm and semantic
+node_modules/
+semantic/

@@ -18,3 +18,5 @@ INSERT INTO users (user_id, name, user_email, password) VALUES (17, 'Elon Musk',
 INSERT INTO users (user_id, name, user_email, password) VALUES (18, 'Steve Jobs', 'stevejobs@example.com', 'password');
 INSERT INTO users (user_id, name, user_email, password) VALUES (19, 'Mark Manson', 'markmanson@example.com', 'password');
 INSERT INTO users (user_id, name, user_email, password) VALUES (20, 'Jeff Atwood', 'jeffatwood@example.com', 'password');
+
+SELECT setval('users_user_id_seq', (SELECT MAX(user_id) FROM users));
