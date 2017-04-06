@@ -9,17 +9,17 @@
             <table class="ui striped table">
                 <thead>
                     <tr>
-                        <th>User email</th>
+                        <th class="left aligned">User email</th>
                         <th>Id</th>
-                        <th>Role</th>
+                        <th class="right aligned">Role</th>
                     </tr>
                 </thead>
                 <tbody>
                     {% for user in users %}
                         <tr>
-                            <td>{{ user.user_email }}</td>
+                            <td class="left aligned">{{ user.user_email }}</td>
                             <td><a href="/userDetails/?user_id={{ user.user_id }}">{{ user.user_id }}</a></td>
-                            <td>{{ user.role }}</td>
+                            <td class="right aligned">{{ user.role }}</td>
                         </tr>
                     {% endfor %}
                 </tbody>
