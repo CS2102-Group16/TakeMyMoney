@@ -353,8 +353,9 @@ def store_user(request):
             connection.commit()
         except:
             messages.add_message(request, messages.ERROR, ErrorMessages.USER_REGISTER_FAIL)
+            return redirect('/')
 
-    return redirect('/userList/')
+    return attempt_login(request)
 
 
 def user_list(request):
