@@ -645,7 +645,7 @@ def store_funding(request):
     context = dict()
     inject_user_data(request, context)
     pid = request.GET.get('pid', None)
-    amount = request.GET['amount', None]
+    amount = request.GET.get('amount', None);
 
     if pid is None:
         messages.add_message(request, messages.ERROR, ErrorMessages.PROJECT_NOT_FOUND)
