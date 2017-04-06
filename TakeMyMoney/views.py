@@ -50,7 +50,7 @@ def authorize_modify_project(context, target_pid):
     if 'user_id' not in context or 'role' not in context:
         return False
 
-    if context['role'] is 'admin':
+    if context['role'] == 'admin':
         # Admins are authorized to do anything they want.
         return True
 
