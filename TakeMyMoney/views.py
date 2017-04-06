@@ -637,6 +637,7 @@ def add_funding(request):
         'amount': amount,
         'pid': pid,
     }
+    inject_user_data(request, context)
 
     return render(request, 'add_funding.html', context=context)
 
