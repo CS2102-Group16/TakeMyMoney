@@ -70,6 +70,9 @@ def authorize_modify_project(context, target_pid):
 def project_list(request):
     context = dict()
     inject_user_data(request, context)
+    current_date = datetime.datetime.now()
+    current_date_string = '{0}-{1}-{2}'.format(current_date.year, current_date.month, current_date.day)
+    current_date_string = '2017-02-27'
     filtering = request.GET.get('filter', None)
 
     if filtering == 'owned' and 'user_id' in context:
@@ -79,9 +82,9 @@ def project_list(request):
                 cursor.execute("SELECT p.title, p.description, p.photo_url, p.target_fund, p.start_date, p.end_date, p.pid,"
                                " string_agg(pc.category_name, ', ') FROM projects p"
                                " LEFT OUTER JOIN projects_categories pc ON pc.pid = p.pid"
-                               " WHERE p.user_id = %s"
+                               " WHERE p.user_id = %s AND p.start_date <= '%s'"
                                " GROUP BY p.pid"
-                               " ORDER BY p.title ASC" % context['user_id'])
+                               " ORDER BY p.title ASC" % (context['user_id'], current_date_string))
                 rows = cursor.fetchall()
                 projects = Helper.db_rows_to_dict(project_attrs, rows)
             except:
@@ -96,8 +99,9 @@ def project_list(request):
                                " string_agg(pc.category_name, ', ') FROM projects p"
                                " LEFT OUTER JOIN projects_categories pc ON pc.pid = p.pid"
                                " INNER JOIN funding f ON p.pid = f.pid AND f.user_id = %s"
+                               " WHERE p.start_date <= '%s'"
                                " GROUP BY p.pid"
-                               " ORDER BY p.title ASC" % context['user_id'])
+                               " ORDER BY p.title ASC" % (context['user_id'], current_date_string))
                 rows = cursor.fetchall()
                 projects = Helper.db_rows_to_dict(project_attrs, rows)
             except:
@@ -115,9 +119,9 @@ def project_list(request):
                 cursor.execute("SELECT p.title, p.description, p.photo_url, p.target_fund, p.start_date, p.end_date, p.pid,"
                                " string_agg(pc.category_name, ', ') FROM projects p"
                                " LEFT OUTER JOIN projects_categories pc ON pc.pid = p.pid"
-                               " WHERE p.title ILIKE %s OR p.description ILIKE %s"
+                               " WHERE (p.title ILIKE %s OR p.description ILIKE %s) AND p.start_date <= '%s'"
                                " GROUP BY p.pid"
-                               " ORDER BY p.title", args)
+                               " ORDER BY p.title", args, args, current_date_string)
                 rows = cursor.fetchall()
                 projects = Helper.db_rows_to_dict(project_attrs, rows)
             except:
@@ -140,8 +144,9 @@ def project_list(request):
         query_str = "SELECT p.title, p.description, p.photo_url, p.target_fund, p.start_date, p.end_date, p.pid," \
                     " string_agg(pc.category_name, ', ') FROM projects p" \
                     " LEFT OUTER JOIN projects_categories pc ON p.pid = pc.pid" \
+                    " WHERE p.start_date <= '{}'" \
                     " GROUP BY p.pid" \
-                    " ORDER BY p.title ASC"
+                    " ORDER BY p.title ASC".format(current_date_string)
 
         if 'category' in request.GET:
             category_name = request.GET['category']
@@ -155,8 +160,8 @@ def project_list(request):
                             " string_agg(pc2.category_name, ', ')" \
                             " FROM projects p2" \
                             " NATURAL JOIN projects_categories pc2" \
-                            " WHERE pc2.category_name <>'%s'" \
-                            " GROUP BY p2.pid" % category_name
+                            " WHERE pc2.category_name <>'%s' AND p.start_date <= '%s'" \
+                            " GROUP BY p2.pid" % (category_name, current_date_string)
 
         with connection.cursor() as cursor:
             try:
