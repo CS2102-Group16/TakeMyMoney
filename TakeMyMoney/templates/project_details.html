@@ -45,7 +45,7 @@
                     </div>
 
                     <div class="right floated column right aligned middle aligned">
-                        {% if user_id == project.user_id %}
+                        {% if user_id == project.user_id or role == 'admin' %}
                             <a href="/editProject/?pid={{ project.pid }}" class="ui orange button right floated" role="button">Edit</a>
                             <a href="/deleteProject/?pid={{ project.pid }}" class="ui red button right floated" role="button">Delete</a>
                         {% endif %}
