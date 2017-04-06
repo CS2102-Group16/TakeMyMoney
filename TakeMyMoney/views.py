@@ -532,7 +532,12 @@ def update_project(request):
     inject_user_data(request, context)
     pid = request.GET.get('pid', None)
 
-    if (pid is None) or not authorize_modify_project(context, pid):
+    if pid is None:
+        messages.add_message(request, messages.ERROR, ErrorMessages.PROJECT_NOT_FOUND)
+        return redirect('/')
+
+    if not authorize_modify_project(context, pid):
+        messages.add_message(request, messages.ERROR, ErrorMessages.UNAUTHORIZED)
         return redirect('/')
 
     with connection.cursor() as cursor:
