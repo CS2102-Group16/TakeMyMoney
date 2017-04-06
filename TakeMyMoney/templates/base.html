@@ -68,17 +68,6 @@
             <a href="/" class="header item" id="brand">
                 Take My Money
             </a>
-            <div class="ui simple dropdown item">
-                Projects <i class="dropdown icon"></i>
-                <div class="menu">
-                    <a class="item" href="/projectList/">All projects</a>
-                    {% if user_email %}
-                        <div class="divider"></div>
-                        <a class="item" href="/projectList/?filter=pledged">My pledged projects</a>
-                        <a class="item" href="/projectList/?filter=owned">Owned projects</a>
-                    {% endif %}
-                </div>
-            </div>
             {% if user_email %}
                 <a class="item" href="/addNewProject/">Add new project</a>
             {% endif %}
